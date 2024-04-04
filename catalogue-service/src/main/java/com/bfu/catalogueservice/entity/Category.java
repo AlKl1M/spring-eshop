@@ -2,6 +2,7 @@ package com.bfu.catalogueservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(schema = "catalogue", name = "t_category")
 public class Category {
     @Id
@@ -19,11 +21,11 @@ public class Category {
     private Long id;
 
     @Column(name = "c_category_id")
-    private UUID categoryId;
+    private String categoryId;
 
     @Column(name = "c_title")
-    private String title;
+    private String name;
 
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+//    @OneToMany(mappedBy = "category")
+//    private List<Product> products;
 }
