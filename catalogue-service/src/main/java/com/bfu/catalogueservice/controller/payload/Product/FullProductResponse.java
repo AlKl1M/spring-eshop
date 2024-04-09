@@ -7,20 +7,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
 
-public record ProductResponse(
+public record FullProductResponse(
         String productId,
         String name,
         BigDecimal price,
-//        JsonNode attributes,
+        JsonNode attributes,
+        String description,
         Category category,
         Brand brand
 ) {
-    public static ProductResponse from(Product product){
-        return new ProductResponse(
+    public static FullProductResponse from(Product product){
+        return new FullProductResponse(
                 product.getProductId(),
                 product.getName(),
                 product.getPrice(),
-//                product.getAttributes(),
+                product.getAttributes(),
+                product.getDescription(),
                 product.getCategory(),
                 product.getBrand()
         );

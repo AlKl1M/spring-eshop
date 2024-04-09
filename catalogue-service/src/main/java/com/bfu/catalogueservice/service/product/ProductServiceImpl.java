@@ -1,13 +1,8 @@
 package com.bfu.catalogueservice.service.product;
 
-import com.bfu.catalogueservice.controller.payload.Category.CategoryResponse;
-import com.bfu.catalogueservice.controller.payload.Product.CreateProductRequest;
-import com.bfu.catalogueservice.controller.payload.Product.DeleteProductRequest;
-import com.bfu.catalogueservice.controller.payload.Product.ProductResponse;
-import com.bfu.catalogueservice.controller.payload.Product.UpdateProductRequest;
+import com.bfu.catalogueservice.controller.payload.Product.*;
 import com.bfu.catalogueservice.entity.Brand;
 import com.bfu.catalogueservice.entity.Category;
-import com.bfu.catalogueservice.entity.JsonNodeConverter;
 import com.bfu.catalogueservice.entity.Product;
 import com.bfu.catalogueservice.exception.BrandNotFoundException;
 import com.bfu.catalogueservice.exception.CategoryNotFoundException;
@@ -16,21 +11,23 @@ import com.bfu.catalogueservice.repository.BrandRepository;
 import com.bfu.catalogueservice.repository.CategoryRepository;
 import com.bfu.catalogueservice.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     @Override
     public void createProduct(CreateProductRequest productRequest) {
+        log.info("Start creating product with name {}", productRequest.name());
         Brand brand = brandRepository.findByBrandId(productRequest.brandId());
         Category category = categoryRepository.findByCategoryId(productRequest.categoryId());
         if (brand != null) {
@@ -39,32 +36,37 @@ public class ProductServiceImpl implements ProductService{
                         .productId(UUID.randomUUID().toString().substring(0,15))
                         .price(productRequest.price())
                         .name(productRequest.name())
-//                        .attributes(productRequest.attributes())
+                        .attributes(productRequest.attributes())
+                        .description(productRequest.description())
                         .brand(brand)
                         .category(category)
                         .build();
                 productRepository.save(product);
             }
             else {
+                log.error("Category not found with categoryId {}", productRequest.categoryId());
                 throw new CategoryNotFoundException(productRequest.categoryId());
             }
         }
         else {
+            log.error("Brand not found with brandId {}", productRequest.brandId());
             throw new BrandNotFoundException(productRequest.brandId());
         }
     }
 
     @Override
-    public List<ProductResponse> getAllProducts() {
-        List<ProductResponse> products = new ArrayList<>();
+    public List<FullProductResponse> getAllProducts() {
+        log.info("Getting all products");
+        List<FullProductResponse> products = new ArrayList<>();
         for (Product product: productRepository.findAll()){
-            products.add(ProductResponse.from(product));
+            products.add(FullProductResponse.from(product));
         }
         return products;
     }
 
     @Override
     public void updateProduct(UpdateProductRequest productRequest) {
+        log.info("Start updating product with name {}", productRequest.newName());
         Brand brand = brandRepository.findByBrandId(productRequest.newBrandId());
         Category category = categoryRepository.findByCategoryId(productRequest.newCategoryId());
         Product product = productRepository.findByProductId(productRequest.productId());
@@ -80,19 +82,49 @@ public class ProductServiceImpl implements ProductService{
         if (productRequest.newName() != null) {
             product.setName(productRequest.newName());
         }
+        if (productRequest.description() != null) {
+            product.setDescription(productRequest.description());
+        }
         productRepository.save(product);
 
     }
 
     @Override
-    public void deleteProduct(DeleteProductRequest productRequest) {
-        Product product = productRepository.findByProductId(productRequest.productId());
+    public void deleteProduct(String productId) {
+        log.info("Start deleting product with productId {}", productId);
+        Product product = productRepository.findByProductId(productId);
         if (product != null) {
             productRepository.delete(product);
         }
         else {
-            throw new ProductNotFoundException(productRequest.productId());
+            log.error("Product not found with productId {}", productId);
+            throw new ProductNotFoundException(productId);
         }
+    }
+
+    @Override
+    public SimplifiedProductResponse getSimpleProductById(String productId) {
+        log.info("Getting Simplified product with productId {}", productId);
+        Product product = productRepository.findByProductId(productId);
+        return new SimplifiedProductResponse(
+                product.getProductId(),
+                product.getName(),
+                product.getPrice()
+        );
+    }
+
+    @Override
+    public FullProductResponse getFullProductById(String productId) {
+        log.info("Getting Full product with productId {}", productId);
+        Product product = productRepository.findByProductId(productId);
+        return new FullProductResponse(
+                product.getProductId(),
+                product.getName(),
+                product.getPrice(),
+                product.getAttributes(),
+                product.getDescription(),
+                product.getCategory(),
+                product.getBrand());
     }
 
 }
