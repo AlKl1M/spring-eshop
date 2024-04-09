@@ -1,64 +1,51 @@
 package com.bfu.cartservice.service;
 
-import com.bfu.cartservice.controller.payload.CartResponse;
+import com.bfu.cartservice.controller.payload.CartPayload;
 import com.bfu.cartservice.entity.Cart;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.repository.CartRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
 
     @Override
-    public List<CartResponse> getAllCarts() {
-        List<CartResponse> carts = new ArrayList<>();
-        for (Cart cart: cartRepository.findAll()){
-            carts.add(CartResponse.from(cart));
-        }
-        return carts;
+    public List<CartPayload> getAllCarts() {
+        return cartRepository.findAll().stream()
+                .map(CartPayload::from)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void createCartByUserId(String userId) {
+    public Cart createCartByUserId(String userId) {
         Cart cart = new Cart(UUID.randomUUID(), userId, Collections.emptyList());
-        cartRepository.save(cart);
+        return cartRepository.save(cart);
     }
 
     @Override
-    public Cart addToCart(String userId, Product newProduct) {
+    public void addToCart(String userId, Product newProduct) {
         Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
-        Cart cart;
-        if (optionalCart.isPresent()) {
-            cart = optionalCart.get();
-        } else {
-            createCartByUserId(userId);
-            Optional<Cart> newCart = cartRepository.findByUserId(userId);
-            cart = newCart.get();
-        }
+        Cart cart = optionalCart.orElseGet(() -> createCartByUserId(userId));
 
         List<Product> products = cart.getProducts();
-        boolean found = false;
-
-        for (Product product : products) {
-            if (product.getId().equals(newProduct.getId())) {
-                product.setQuantity(product.getQuantity() + 1);
-                found = true;
-                break;
-            }
-        }
+        boolean found = products.stream()
+                .filter(product -> product.getId().equals(newProduct.getId()))
+                .peek(product -> product.setQuantity(product.getQuantity() + 1))
+                .findFirst()
+                .isPresent();
 
         if (!found) {
             newProduct.setQuantity(1);
             products.add(newProduct);
         }
 
-        cart.setProducts(products);
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
@@ -74,7 +61,6 @@ public class CartServiceImpl implements CartService{
         cartRepository.save(cart);
     }
 
-    @Override
     public void reduceProductQuantity(UUID cartId, String productId) {
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
         List<Product> products = cart.getProducts();

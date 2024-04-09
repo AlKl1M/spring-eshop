@@ -1,9 +1,8 @@
 package com.bfu.cartservice.controller;
 
+import com.bfu.cartservice.controller.payload.CartPayload;
 import com.bfu.cartservice.controller.payload.CartProductResponse;
 import com.bfu.cartservice.client.CatalogueServiceClient;
-import com.bfu.cartservice.controller.payload.CartResponse;
-import com.bfu.cartservice.entity.Cart;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +20,20 @@ public class CartController {
     private final CatalogueServiceClient catalogueServiceClient;
 
     @GetMapping("/carts")
-    public List<CartResponse> getAllCarts(){
+    public List<CartPayload> getAllCarts(){
         return cartService.getAllCarts();
     }
 
     @PostMapping("/{cartId}/products/{productId}")
-    public Cart addToCart(@PathVariable String cartId, @PathVariable String productId) {
+    public ResponseEntity<?> addToCart(@PathVariable String cartId, @PathVariable String productId) {
         CartProductResponse cartProductResponse = catalogueServiceClient.getProductById(productId);
         Product product = Product.builder()
                 .id(cartProductResponse.id())
                 .name(cartProductResponse.name())
                 .price(cartProductResponse.price())
                 .quantity(1).build();
-        return cartService.addToCart(cartId, product);
+        cartService.addToCart(cartId, product);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{cartId}/products/{productId}/increase")

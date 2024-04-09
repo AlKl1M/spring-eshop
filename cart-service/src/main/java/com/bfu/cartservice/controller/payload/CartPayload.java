@@ -6,12 +6,12 @@ import com.bfu.cartservice.entity.Product;
 import java.util.List;
 import java.util.UUID;
 
-public record CartResponse(UUID id,
+public record CartPayload(UUID id,
         String userId,
         List<Product>products)
 {
-    public static CartResponse from(Cart cart){
-        return new CartResponse(
+    public static CartPayload from(Cart cart){
+        return new CartPayload(
                 cart.getId(),
                 cart.getUserId(),
                 cart.getProducts()
