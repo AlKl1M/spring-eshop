@@ -7,11 +7,11 @@ import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.service.CartService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -25,33 +25,37 @@ public class CartController {
         return cartService.getAllCarts();
     }
 
-    @PostMapping("/{cartId}/products/{productId}")
-    public ResponseEntity<?> addToCart(@PathVariable String cartId, @PathVariable String productId, Principal principal) {
+    @PostMapping("/products/{productId}")
+    public ResponseEntity<?> addToCart(@PathVariable String productId, Principal principal) {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         Product product = Product.builder()
                 .id(cartProductResponse.productId())
                 .name(cartProductResponse.name())
                 .price(cartProductResponse.price())
                 .quantity(1).build();
-        cartService.addToCart(cartId, product);
+        cartService.addToCart(userId, product);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{cartId}/products/{productId}/increase")
-    public ResponseEntity<?> increaseProductQuantity(@PathVariable UUID cartId, @PathVariable String productId) {
-        cartService.increaseProductQuantity(cartId, productId);
+    @PostMapping("/products/{productId}/increase")
+    public ResponseEntity<?> increaseProductQuantity(@PathVariable String productId, Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        cartService.increaseProductQuantity(userId, productId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{cartId}/products/{productId}/reduce")
-    public ResponseEntity<?> reduceProductQuantity(@PathVariable UUID cartId, @PathVariable String productId) {
-        cartService.reduceProductQuantity(cartId, productId);
+    @PostMapping("/products/{productId}/reduce")
+    public ResponseEntity<?> reduceProductQuantity(@PathVariable String productId, Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        cartService.reduceProductQuantity(userId, productId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{cartId}/products")
-    public ResponseEntity<?> deleteAllProducts(@PathVariable UUID cartId) {
-        cartService.deleteAllProducts(cartId);
+    @DeleteMapping("/products")
+    public ResponseEntity<?> deleteAllProducts(Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        cartService.deleteAllProducts(userId);
         return ResponseEntity.ok().build();
     }
 }

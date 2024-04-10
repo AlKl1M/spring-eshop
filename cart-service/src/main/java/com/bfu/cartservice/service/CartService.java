@@ -11,8 +11,8 @@ public interface CartService {
     List<CartPayload> getAllCarts();
     Cart createCartByUserId(String userId);
     void addToCart(String userId, Product newProduct);
-    void increaseProductQuantity(UUID cartId, String productId);
-    void reduceProductQuantity(UUID cartId, String productId);
-    void deleteAllProducts(UUID cartId);
+    void increaseProductQuantity(String userId, String productId);
+    void reduceProductQuantity(String userId, String productId);
+    void deleteAllProducts(String userId);
 
 }

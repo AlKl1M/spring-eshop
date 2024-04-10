@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.UUID;
 
 public record CartPayload(UUID id,
-        String userId,
         List<Product>products)
 {
     public static CartPayload from(Cart cart){
         return new CartPayload(
                 cart.getId(),
-                cart.getUserId(),
                 cart.getProducts()
         );
     }

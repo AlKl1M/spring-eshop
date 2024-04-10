@@ -6,12 +6,14 @@ import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
 
@@ -23,16 +25,17 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
+    @Transactional
     public Cart createCartByUserId(String userId) {
         Cart cart = new Cart(UUID.randomUUID(), userId, Collections.emptyList());
         return cartRepository.save(cart);
     }
 
     @Override
+    @Transactional
     public void addToCart(String userId, Product newProduct) {
         Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
         Cart cart = optionalCart.orElseGet(() -> createCartByUserId(userId));
-
         List<Product> products = cart.getProducts();
         boolean found = products.stream()
                 .filter(product -> product.getId().equals(newProduct.getId()))
@@ -49,8 +52,9 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void increaseProductQuantity(UUID cartId, String productId) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
+    @Transactional
+    public void increaseProductQuantity(String userId, String productId) {
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
         List<Product> products = cart.getProducts();
         for (Product product : products) {
             if (product.getId().equals(productId)) {
@@ -61,8 +65,10 @@ public class CartServiceImpl implements CartService{
         cartRepository.save(cart);
     }
 
-    public void reduceProductQuantity(UUID cartId, String productId) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
+    @Override
+    @Transactional
+    public void reduceProductQuantity(String userId, String productId) {
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
         List<Product> products = cart.getProducts();
         for (Product product : products) {
             if (product.getId().equals(productId)) {
@@ -75,8 +81,9 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void deleteAllProducts(UUID cartId) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
+    @Transactional
+    public void deleteAllProducts(String userId) {
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
         cart.setProducts(new ArrayList<>());
         cartRepository.save(cart);
     }

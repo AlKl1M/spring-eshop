@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
-public class ClientConfig {
+public class ClientBeans {
     @Bean
     public WebClient webClient() {
         return WebClient.builder()
