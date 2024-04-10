@@ -1,23 +1,24 @@
 package com.bfu.cartservice.controller;
 
+import com.bfu.cartservice.client.CartServiceClient;
 import com.bfu.cartservice.controller.payload.CartPayload;
-import com.bfu.cartservice.controller.payload.CartProductResponse;
-import com.bfu.cartservice.client.CatalogueServiceClient;
+import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.service.CartService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("cart")
-@RequiredArgsConstructor
+@RequestMapping("/api/cart")
+@AllArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final CatalogueServiceClient catalogueServiceClient;
+    private final CartServiceClient client;
 
     @GetMapping("/carts")
     public List<CartPayload> getAllCarts(){
@@ -25,10 +26,10 @@ public class CartController {
     }
 
     @PostMapping("/{cartId}/products/{productId}")
-    public ResponseEntity<?> addToCart(@PathVariable String cartId, @PathVariable String productId) {
-        CartProductResponse cartProductResponse = catalogueServiceClient.getProductById(productId);
+    public ResponseEntity<?> addToCart(@PathVariable String cartId, @PathVariable String productId, Principal principal) {
+        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         Product product = Product.builder()
-                .id(cartProductResponse.id())
+                .id(cartProductResponse.productId())
                 .name(cartProductResponse.name())
                 .price(cartProductResponse.price())
                 .quantity(1).build();
