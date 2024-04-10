@@ -7,8 +7,11 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -26,12 +29,12 @@ public class ProductController {
         return ResponseEntity.ok("Product has been created");
     }
     @GetMapping("/getAllProducts")
-    public List<FullProductResponse> getAllProducts(){
+    public List<FullProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    @GetMapping("/simplified-product-info")
-    public SimplifiedProductResponse getSimpleProductById(@RequestParam String productId){
+    @GetMapping("/simplified-product-info/{productId}")
+    public SimplifiedProductResponse getSimpleProductById(@PathVariable String productId){
         return productService.getSimpleProductById(productId);
     }
     @GetMapping("/full-product-info")

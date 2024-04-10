@@ -8,8 +8,11 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -29,6 +32,7 @@ public class CategoryController {
         log.info("Category has been created");
         return ResponseEntity.ok("Category has been created");
     }
+
     @PutMapping("/update-category")
     public ResponseEntity<?> updateCategory(@RequestBody UpdateCategoryRequest categoryRequest){
         categoryService.updateCategory(categoryRequest);
