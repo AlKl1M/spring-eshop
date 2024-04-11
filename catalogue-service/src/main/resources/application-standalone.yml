@@ -22,4 +22,3 @@ spring:
       - catalogue
   jpa:
     show-sql: true
-
