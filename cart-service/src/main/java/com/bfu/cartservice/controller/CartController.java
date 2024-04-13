@@ -40,15 +40,17 @@ public class CartController {
 
     @PostMapping("/products/{productId}/increase")
     public ResponseEntity<?> increaseProductQuantity(@PathVariable String productId, Principal principal) {
+        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        cartService.increaseProductQuantity(userId, productId);
+        cartService.increaseProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/products/{productId}/reduce")
     public ResponseEntity<?> reduceProductQuantity(@PathVariable String productId, Principal principal) {
+        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        cartService.reduceProductQuantity(userId, productId);
+        cartService.reduceProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
         return ResponseEntity.ok().build();
     }
 
