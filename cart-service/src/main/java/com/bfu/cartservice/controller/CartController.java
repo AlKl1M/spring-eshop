@@ -43,7 +43,7 @@ public class CartController {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         cartService.increaseProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/products/{productId}/reduce")
@@ -51,13 +51,13 @@ public class CartController {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         cartService.reduceProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/products")
-    public ResponseEntity<?> deleteAllProducts(Principal principal) {
+    public ResponseEntity<Void> deleteAllProducts(Principal principal) {
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         cartService.deleteAllProducts(userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
