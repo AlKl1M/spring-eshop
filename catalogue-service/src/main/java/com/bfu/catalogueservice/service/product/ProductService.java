@@ -2,6 +2,7 @@ package com.bfu.catalogueservice.service.product;
 
 import com.bfu.catalogueservice.controller.payload.Product.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface ProductService {
@@ -17,4 +18,7 @@ public interface ProductService {
 
     FullProductResponse getFullProductById(String productId);
 
+    ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(ArrayList<String> productsId);
+
+    ArrayList<FullProductResponse> getArrayFullProductsById(ArrayList<String> productsId);
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -105,26 +106,74 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public SimplifiedProductResponse getSimpleProductById(String productId) {
         log.info("Getting Simplified product with productId {}", productId);
-        Product product = productRepository.findByProductId(productId);
-        return new SimplifiedProductResponse(
-                product.getProductId(),
-                product.getName(),
-                product.getPrice()
-        );
+        Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
+        if (result.isPresent()) {
+            Product product = result.get();
+            return new SimplifiedProductResponse(
+                    product.getProductId(),
+                    product.getName(),
+                    product.getPrice()
+            );
+        }
+        log.error("Product not found with productId {}", productId);
+        throw new ProductNotFoundException(productId);
     }
 
     @Override
     public FullProductResponse getFullProductById(String productId) {
         log.info("Getting Full product with productId {}", productId);
-        Product product = productRepository.findByProductId(productId);
-        return new FullProductResponse(
-                product.getProductId(),
-                product.getName(),
-                product.getPrice(),
-                product.getAttributes(),
-                product.getDescription(),
-                product.getCategory(),
-                product.getBrand());
+        Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
+        if (result.isPresent()) {
+            Product product = result.get();
+            return new FullProductResponse(
+                    product.getProductId(),
+                    product.getName(),
+                    product.getPrice(),
+                    product.getAttributes(),
+                    product.getDescription(),
+                    product.getCategory(),
+                    product.getBrand());
+        }
+        log.error("Product not found with productId {}", productId);
+        throw new ProductNotFoundException(productId);
+    }
+
+    @Override
+    public ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(ArrayList<String> productsId) {
+        ArrayList<SimplifiedProductResponse> products = new ArrayList<>();
+        for (String productId: productsId){
+            Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
+            if (result.isPresent()){
+                Product product = result.get();
+                products.add(new SimplifiedProductResponse(
+                        product.getProductId(),
+                        product.getName(),
+                        product.getPrice()
+                ));
+            }
+        }
+        return products;
+    }
+
+    @Override
+    public ArrayList<FullProductResponse> getArrayFullProductsById(ArrayList<String> productsId) {
+        ArrayList<FullProductResponse> products = new ArrayList<>();
+        for (String productId: productsId){
+            Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
+            if (result.isPresent()){
+                Product product = result.get();
+                products.add(new FullProductResponse(
+                        product.getProductId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getAttributes(),
+                        product.getDescription(),
+                        product.getCategory(),
+                        product.getBrand()
+                ));
+            }
+        }
+        return products;
     }
 
 }

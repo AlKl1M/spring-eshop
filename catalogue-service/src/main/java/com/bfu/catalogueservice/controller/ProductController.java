@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -37,6 +38,14 @@ public class ProductController {
     @GetMapping("/full-product-info")
     public FullProductResponse getFullProductById(@RequestParam String productId){
         return productService.getFullProductById(productId);
+    }
+    @GetMapping("/simplified-products-info")
+    public ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(@RequestBody ArrayOfProductsIdRequest array){
+        return productService.getArraySimpleProductsById(array.productsId());
+    }
+    @GetMapping("/full-products-info")
+    public ArrayList<FullProductResponse> getArrayFullProductById(@RequestBody ArrayOfProductsIdRequest array){
+        return productService.getArrayFullProductsById(array.productsId());
     }
 
     @PutMapping("/update-product")
