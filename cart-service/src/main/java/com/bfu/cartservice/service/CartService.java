@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public interface CartService {
     List<CartPayload> getAllCarts();
-    List<String> findProductIdsByUserId(String userId);
     Cart createCartByUserId(String userId);
     void addToCart(String userId, Product newProduct);
     void increaseProductQuantity(String userId, String productId, BigDecimal price);

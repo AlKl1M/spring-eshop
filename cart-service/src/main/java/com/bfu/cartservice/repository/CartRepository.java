@@ -9,5 +9,4 @@ import java.util.UUID;
 
 public interface CartRepository extends MongoRepository<Cart, UUID> {
     Optional<Cart> findByUserId(String userId);
-    List<Cart> findAllByUserId(String userId);
 }

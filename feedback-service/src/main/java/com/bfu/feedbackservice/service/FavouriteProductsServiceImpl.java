@@ -5,6 +5,7 @@ import com.bfu.feedbackservice.repository.FavouriteProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,5 +36,16 @@ public class FavouriteProductsServiceImpl implements FavouriteProductsService {
     @Override
     public List<FavouriteProduct> findFavouriteProducts(String userId) {
         return this.favouriteProductRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public List<String> findProductIdsByUserId(String userId) {
+        List<FavouriteProduct> favouriteProducts = favouriteProductRepository.findAllByUserId(userId);
+        List<String> productIds = new ArrayList<>();
+
+        for (FavouriteProduct product : favouriteProducts) {
+            productIds.add(product.getProductId());
+        }
+        return productIds;
     }
 }

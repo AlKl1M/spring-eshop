@@ -28,20 +28,6 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public List<String> findProductIdsByUserId(String userId) {
-        List<Cart> carts = cartRepository.findAllByUserId(userId);
-        List<String> productIds = new ArrayList<>();
-
-        for (Cart cart : carts) {
-            for (Product product : cart.getProducts()) {
-                productIds.add(product.getId());
-            }
-        }
-
-        return productIds;
-    }
-
-    @Override
     @Transactional
     public Cart createCartByUserId(String userId) {
         log.info("User with id {} trying to create a cart", userId);
