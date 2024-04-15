@@ -9,4 +9,5 @@ public interface FavouriteProductsService {
     void removeProductFromFavourites(String productId, String userId);
     List<FavouriteProduct> findFavouriteProductByProduct(String productId, String userId);
     List<FavouriteProduct> findFavouriteProducts(String userId);
+    List<String> findProductIdsByUserId(String userId);
 }

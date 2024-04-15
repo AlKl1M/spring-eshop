@@ -5,7 +5,10 @@ import com.bfu.feedbackservice.entity.FavouriteProduct;
 import com.bfu.feedbackservice.service.FavouriteProductsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,6 +26,13 @@ public class FavouriteProductsController {
         return favouriteProductsService.findFavouriteProducts(userId);
     }
 
+    @GetMapping("/productIds")
+    public ResponseEntity<List<String>> getProductIdsByUserId(Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        List<String> productIds = favouriteProductsService.findProductIdsByUserId(userId);
+        return ResponseEntity.ok(productIds);
+    }
+
     @GetMapping("by-product-id/{productId}")
     public List<FavouriteProduct> findFavouriteProductByProductId(@PathVariable("productId") String productId,
                                                                   Principal principal) {
@@ -33,9 +43,18 @@ public class FavouriteProductsController {
     @PostMapping
     public FavouriteProduct addProductToFavourites(
             @Valid @RequestBody NewFavouriteProductPayload payload,
-            Principal principal) {
-        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        return favouriteProductsService.addProductToFavourites(payload.productId(), userId);
+            BindingResult bindingResult,
+            Principal principal) throws BindException{
+        if (bindingResult.hasErrors()) {
+            if (bindingResult instanceof BindException exception) {
+                throw exception;
+            } else {
+                throw new BindException(bindingResult);
+            }
+        } else {
+            String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+            return favouriteProductsService.addProductToFavourites(payload.productId(), userId);
+        }
     }
 
     @DeleteMapping("by-product-id/{productId}")
