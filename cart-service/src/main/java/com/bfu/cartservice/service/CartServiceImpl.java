@@ -28,9 +28,23 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
+    public List<String> findProductIdsByUserId(String userId) {
+        List<Cart> carts = cartRepository.findAllByUserId(userId);
+        List<String> productIds = new ArrayList<>();
+
+        for (Cart cart : carts) {
+            for (Product product : cart.getProducts()) {
+                productIds.add(product.getId());
+            }
+        }
+
+        return productIds;
+    }
+
+    @Override
     @Transactional
     public Cart createCartByUserId(String userId) {
-        log.info("User with id {} trying to create a cart");
+        log.info("User with id {} trying to create a cart", userId);
         Cart cart = new Cart(UUID.randomUUID(), userId, Collections.emptyList(), BigDecimal.ZERO);
         return cartRepository.save(cart);
     }
@@ -88,8 +102,13 @@ public class CartServiceImpl implements CartService{
             int newQuantity = Math.max(product.getQuantity() - 1, 0);
             BigDecimal newPrice = product.getPrice().subtract(price).max(BigDecimal.ZERO);
             BigDecimal newTotalPrice = cart.getTotalPrice().subtract(price).max(BigDecimal.ZERO);
-            product.setQuantity(newQuantity);
-            product.setPrice(newPrice);
+
+            if (newQuantity == 0) {
+                cart.getProducts().remove(product);
+            } else {
+                product.setQuantity(newQuantity);
+                product.setPrice(newPrice);
+            }
             cart.setTotalPrice(newTotalPrice);
         });
         cartRepository.save(cart);

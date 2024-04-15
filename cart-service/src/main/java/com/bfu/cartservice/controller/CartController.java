@@ -25,6 +25,13 @@ public class CartController {
         return cartService.getAllCarts();
     }
 
+    @GetMapping("/productIds")
+    public ResponseEntity<List<String>> getProductIdsByUserId(Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        List<String> productIds = cartService.findProductIdsByUserId(userId);
+        return ResponseEntity.ok(productIds);
+    }
+
     @PostMapping("/products/{productId}")
     public ResponseEntity<?> addToCart(@PathVariable String productId, Principal principal) {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
