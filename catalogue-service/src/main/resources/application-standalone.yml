@@ -10,10 +10,15 @@ spring:
     url: jdbc:postgresql://localhost:5432/catalogue
     username: catalogue
     password: catalogue
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8082/realms/eshop
+
   flyway:
     schemas:
       - public
       - catalogue
   jpa:
     show-sql: true
-
