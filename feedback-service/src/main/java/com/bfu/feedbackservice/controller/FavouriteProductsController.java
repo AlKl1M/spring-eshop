@@ -1,11 +1,11 @@
 package com.bfu.feedbackservice.controller;
 
+import com.bfu.feedbackservice.controller.payload.ArrayOfProductsIdRequest;
 import com.bfu.feedbackservice.controller.payload.NewFavouriteProductPayload;
 import com.bfu.feedbackservice.entity.FavouriteProduct;
 import com.bfu.feedbackservice.service.FavouriteProductsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -26,11 +26,11 @@ public class FavouriteProductsController {
         return favouriteProductsService.findFavouriteProducts(userId);
     }
 
-    @GetMapping("/productIds")
-    public ResponseEntity<List<String>> getProductIdsByUserId(Principal principal) {
+    @GetMapping("/productsId")
+    public ArrayOfProductsIdRequest getProductsIdByUserId(Principal principal) {
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        List<String> productIds = favouriteProductsService.findProductIdsByUserId(userId);
-        return ResponseEntity.ok(productIds);
+        List<String> productsId = favouriteProductsService.findProductIdsByUserId(userId);
+        return ArrayOfProductsIdRequest.from(productsId);
     }
 
     @GetMapping("by-product-id/{productId}")

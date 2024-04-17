@@ -1,4 +1,4 @@
-package com.bfu.catalogueservice.controller.payload.Product;
+package com.bfu.feedbackservice.controller.payload;
 
 import java.util.List;
 

@@ -18,7 +18,7 @@ public interface ProductService {
 
     FullProductResponse getFullProductById(String productId);
 
-    ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(ArrayList<String> productsId);
+    ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(List<String> productsId);
 
-    ArrayList<FullProductResponse> getArrayFullProductsById(ArrayList<String> productsId);
+    ArrayList<FullProductResponse> getArrayFullProductsById(List<String> productsId);
 }

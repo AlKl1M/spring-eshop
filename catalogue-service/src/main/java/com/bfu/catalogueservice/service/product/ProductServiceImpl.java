@@ -139,7 +139,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(ArrayList<String> productsId) {
+    public ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(List<String> productsId) {
+        log.info("Getting Array Simplified products by productsId {}", productsId);
         ArrayList<SimplifiedProductResponse> products = new ArrayList<>();
         for (String productId: productsId){
             Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
@@ -156,7 +157,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ArrayList<FullProductResponse> getArrayFullProductsById(ArrayList<String> productsId) {
+    public ArrayList<FullProductResponse> getArrayFullProductsById(List<String> productsId) {
+        log.info("Getting Array Full products by productsId {}", productsId);
         ArrayList<FullProductResponse> products = new ArrayList<>();
         for (String productId: productsId){
             Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));

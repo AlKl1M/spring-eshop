@@ -5,7 +5,7 @@ spring:
     name: feedback-service
   data:
     mongodb:
-      uri: mongodb://localhost:27028/feedback-db
+      uri: mongodb://localhost:27018/feedback-db
   security:
     oauth2:
       resourceserver:

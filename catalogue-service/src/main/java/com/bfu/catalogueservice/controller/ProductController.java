@@ -1,15 +1,17 @@
 package com.bfu.catalogueservice.controller;
 
 
+import com.bfu.catalogueservice.client.CatalogueServiceClient;
 import com.bfu.catalogueservice.controller.payload.Product.*;
 import com.bfu.catalogueservice.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
 
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final CatalogueServiceClient client;
     @PostMapping("/create-product")
     public ResponseEntity<?> createProduct(@RequestBody @Valid CreateProductRequest productRequest){
         productService.createProduct(productRequest);
@@ -40,11 +43,13 @@ public class ProductController {
         return productService.getFullProductById(productId);
     }
     @GetMapping("/simplified-products-info")
-    public ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(@RequestBody ArrayOfProductsIdRequest array){
+    public List<SimplifiedProductResponse> getArraySimpleProductsById(){
+        ArrayOfProductsIdRequest array = client.getProductsIdByUserId();
         return productService.getArraySimpleProductsById(array.productsId());
     }
     @GetMapping("/full-products-info")
-    public ArrayList<FullProductResponse> getArrayFullProductById(@RequestBody ArrayOfProductsIdRequest array){
+    public List<FullProductResponse> getArrayFullProductById(){
+        ArrayOfProductsIdRequest array = client.getProductsIdByUserId();
         return productService.getArrayFullProductsById(array.productsId());
     }
 

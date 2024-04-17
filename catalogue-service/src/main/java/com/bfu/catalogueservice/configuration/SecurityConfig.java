@@ -1,4 +1,4 @@
-package com.bfu.catalogueservice.cofiguration;
+package com.bfu.catalogueservice.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,9 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 
 @Configuration
@@ -28,6 +25,7 @@ public class SecurityConfig {
                         .hasAuthority("SCOPE_edit_catalogue")
                         .requestMatchers(HttpMethod.GET, "/api/catalogue/")
                         .hasAuthority("SCOPE_edit_catalogue")
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(CsrfConfigurer::disable)
