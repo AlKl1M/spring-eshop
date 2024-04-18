@@ -1,6 +1,8 @@
 package com.bfu.cartservice.service;
 
+import com.bfu.cartservice.controller.payload.ArrayOfSimplifiedProduct;
 import com.bfu.cartservice.controller.payload.CartPayload;
+import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.cartservice.entity.Cart;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.repository.CartRepository;
@@ -25,6 +27,15 @@ public class CartServiceImpl implements CartService{
         return cartRepository.findAll().stream()
                 .map(CartPayload::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ArrayOfSimplifiedProduct getCartByUserId(String userId) {
+        Optional<Cart> cart = cartRepository.findByUserId(userId);
+        List<SimplifiedProductResponse> simplifiedProducts = cart.get().getProducts().stream()
+                .map(product -> new SimplifiedProductResponse(product.getId(), product.getName(), product.getPrice()))
+                .toList();
+        return new ArrayOfSimplifiedProduct(simplifiedProducts);
     }
 
     @Override

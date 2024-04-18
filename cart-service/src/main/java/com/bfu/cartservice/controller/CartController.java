@@ -1,8 +1,10 @@
 package com.bfu.cartservice.controller;
 
 import com.bfu.cartservice.client.CartServiceClient;
+import com.bfu.cartservice.controller.payload.ArrayOfSimplifiedProduct;
 import com.bfu.cartservice.controller.payload.CartPayload;
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
+import com.bfu.cartservice.entity.Cart;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.service.CartService;
 import lombok.AllArgsConstructor;
@@ -10,19 +12,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/carts")
 @AllArgsConstructor
 public class CartController {
     private final CartService cartService;
     private final CartServiceClient client;
 
-    @GetMapping("/carts")
-    public List<CartPayload> getAllCarts(){
-        return cartService.getAllCarts();
+    @GetMapping("cart")
+    public ArrayOfSimplifiedProduct getCart(Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        return cartService.getCartByUserId(userId);
     }
 
     @PostMapping("/products/{productId}")
