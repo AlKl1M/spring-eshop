@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public record SimplifiedProductResponse(
         String productId,
         String name,
+        int quantity,
         BigDecimal price
 ) {
 }

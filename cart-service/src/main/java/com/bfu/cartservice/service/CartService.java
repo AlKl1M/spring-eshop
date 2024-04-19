@@ -17,5 +17,6 @@ public interface CartService {
     void addToCart(String userId, Product newProduct);
     void increaseProductQuantity(String userId, String productId, BigDecimal price);
     void reduceProductQuantity(String userId, String productId, BigDecimal price);
+    void deleteProductFromCart(String userId, String productId);
     void deleteAllProducts(String userId);
 }

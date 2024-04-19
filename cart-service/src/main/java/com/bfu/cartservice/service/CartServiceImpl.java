@@ -31,11 +31,14 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public ArrayOfSimplifiedProduct getCartByUserId(String userId) {
-        Optional<Cart> cart = cartRepository.findByUserId(userId);
-        List<SimplifiedProductResponse> simplifiedProducts = cart.get().getProducts().stream()
-                .map(product -> new SimplifiedProductResponse(product.getId(), product.getName(), product.getPrice()))
-                .toList();
-        return new ArrayOfSimplifiedProduct(simplifiedProducts);
+        return cartRepository.findByUserId(userId)
+                .map(cart -> {
+                    List<SimplifiedProductResponse> simplifiedProducts = cart.getProducts().stream()
+                            .map(product -> new SimplifiedProductResponse(product.getId(), product.getName(), product.getQuantity(), product.getPrice()))
+                            .toList();
+                    return new ArrayOfSimplifiedProduct(simplifiedProducts);
+                })
+                .orElseGet(() -> new ArrayOfSimplifiedProduct(Collections.emptyList()));
     }
 
     @Override
@@ -110,6 +113,21 @@ public class CartServiceImpl implements CartService{
         });
         cartRepository.save(cart);
         log.info("User {} has successfully reduced product quantity", userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProductFromCart(String userId, String productId) {
+        log.info("Deleting product {} from cart of user {}", productId, userId);
+        cartRepository.findByUserId(userId).ifPresent(cart -> {
+            cart.getProducts().removeIf(product -> product.getId().equals(productId));
+            BigDecimal totalPrice = cart.getProducts().stream()
+                    .map(product -> product.getPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            cart.setTotalPrice(totalPrice);
+            cartRepository.save(cart);
+            log.info("Product {} deleted successfully from cart of user {}", productId, userId);
+        });
     }
 
     @Override
