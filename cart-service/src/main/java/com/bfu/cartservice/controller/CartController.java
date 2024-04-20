@@ -1,7 +1,7 @@
 package com.bfu.cartservice.controller;
 
 import com.bfu.cartservice.client.CartServiceClient;
-import com.bfu.cartservice.controller.payload.CartPayload;
+import com.bfu.cartservice.controller.payload.ArrayOfSimplifiedProduct;
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.service.CartService;
@@ -11,21 +11,21 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/carts")
 @AllArgsConstructor
 public class CartController {
     private final CartService cartService;
     private final CartServiceClient client;
 
-    @GetMapping("/carts")
-    public List<CartPayload> getAllCarts(){
-        return cartService.getAllCarts();
+    @GetMapping("cart")
+    public ArrayOfSimplifiedProduct getCart(Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        return cartService.getCartByUserId(userId);
     }
 
-    @PostMapping("/products/{productId}")
+    @PostMapping("/cart/{productId}")
     public ResponseEntity<?> addToCart(@PathVariable String productId, Principal principal) {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
@@ -35,29 +35,36 @@ public class CartController {
                 .price(cartProductResponse.price())
                 .quantity(1).build();
         cartService.addToCart(userId, product);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Product added to cart");
     }
 
-    @PostMapping("/products/{productId}/increase")
+    @PostMapping("/cart/{productId}/increase")
     public ResponseEntity<?> increaseProductQuantity(@PathVariable String productId, Principal principal) {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         cartService.increaseProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Product quantity increased");
     }
 
-    @PostMapping("/products/{productId}/reduce")
+    @PostMapping("/cart/{productId}/reduce")
     public ResponseEntity<?> reduceProductQuantity(@PathVariable String productId, Principal principal) {
         SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         cartService.reduceProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Product quantity reduced");
     }
 
-    @DeleteMapping("/products")
-    public ResponseEntity<Void> deleteAllProducts(Principal principal) {
+    @DeleteMapping("/cart/{productId}")
+    public ResponseEntity<?> deleteProductFromCart(@PathVariable String productId, Principal principal) {
+        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        cartService.deleteProductFromCart(userId, productId);
+        return ResponseEntity.ok("Product deleted from cart");
+    }
+
+    @DeleteMapping("/cart")
+    public ResponseEntity<?> deleteAllProducts(Principal principal) {
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         cartService.deleteAllProducts(userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Cart cleared");
     }
 }
