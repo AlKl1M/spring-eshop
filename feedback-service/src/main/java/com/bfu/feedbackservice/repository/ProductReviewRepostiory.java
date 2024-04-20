@@ -11,4 +11,5 @@ public interface ProductReviewRepostiory extends MongoRepository<ProductReview, 
     List<ProductReview> findAllByProductId(String productId);
     Optional<ProductReview> findByProductIdAndUserId(String productId, String userId);
     void deleteByProductIdAndUserId(String productId, String userId);
+    List<ProductReview> findTop10ByOrderByCreatedDateDesc();
 }
