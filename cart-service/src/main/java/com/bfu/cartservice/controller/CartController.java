@@ -1,6 +1,6 @@
 package com.bfu.cartservice.controller;
 
-import com.bfu.cartservice.client.CartServiceClient;
+import com.bfu.cartservice.client.CatalogueClient;
 import com.bfu.cartservice.controller.payload.ArrayOfSimplifiedProduct;
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.cartservice.entity.Product;
@@ -17,7 +17,7 @@ import java.security.Principal;
 @AllArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final CartServiceClient client;
+    private final CatalogueClient client;
 
     @GetMapping("cart")
     public ArrayOfSimplifiedProduct getCart(Principal principal) {
