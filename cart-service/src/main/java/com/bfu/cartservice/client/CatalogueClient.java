@@ -2,6 +2,6 @@ package com.bfu.cartservice.client;
 
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 
-public interface CartServiceClient {
+public interface CatalogueClient {
     SimplifiedProductResponse getProductInfo(String productId);
 }
