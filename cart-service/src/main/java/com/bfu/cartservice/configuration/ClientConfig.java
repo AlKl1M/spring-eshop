@@ -1,21 +1,30 @@
 package com.bfu.cartservice.configuration;
 
 import com.bfu.cartservice.client.WebClientCatalogueClient;
+import com.bfu.cartservice.security.OAuthClientHttpRequestInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 public class ClientConfig {
 
     @Bean
-    public WebClientCatalogueClient webClientProductsClient(
-            @Value("${eshop.services.catalogue.uri:http://localhost:8081}") String catalogueBaseUrl) {
-        return new WebClientCatalogueClient(WebClient.builder()
-                .filter(new ServletBearerExchangeFilterFunction())
-                .baseUrl(catalogueBaseUrl)
+    public WebClientCatalogueClient productsRestClient(
+            @Value("${eshop.services.catalogue.uri:http://localhost:8081}") String catalogueBaseUri,
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientRepository authorizedClientRepository,
+            @Value("${eshop.services.catalogue.registration-id:keycloak}") String registrationId) {
+        return new WebClientCatalogueClient(RestClient.builder()
+                .baseUrl(catalogueBaseUri)
+                .requestInterceptor(
+                        new OAuthClientHttpRequestInterceptor(
+                                new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
+                                        authorizedClientRepository), registrationId))
                 .build());
     }
 }

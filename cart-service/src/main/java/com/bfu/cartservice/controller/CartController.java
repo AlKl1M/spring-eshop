@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/carts")
@@ -26,9 +27,10 @@ public class CartController {
     }
 
     @PostMapping("/cart/{productId}")
-    public ResponseEntity<?> addToCart(@PathVariable String productId, Principal principal) {
-        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
+    public ResponseEntity<?> addToCart(@PathVariable String productId, Principal principal) throws ExecutionException, InterruptedException {
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
+
         Product product = Product.builder()
                 .id(cartProductResponse.productId())
                 .name(cartProductResponse.name())
@@ -38,21 +40,6 @@ public class CartController {
         return ResponseEntity.ok("Product added to cart");
     }
 
-    @PostMapping("/cart/{productId}/increase")
-    public ResponseEntity<?> increaseProductQuantity(@PathVariable String productId, Principal principal) {
-        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
-        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        cartService.increaseProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
-        return ResponseEntity.ok("Product quantity increased");
-    }
-
-    @PostMapping("/cart/{productId}/reduce")
-    public ResponseEntity<?> reduceProductQuantity(@PathVariable String productId, Principal principal) {
-        SimplifiedProductResponse cartProductResponse = client.getProductInfo(productId);
-        String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        cartService.reduceProductQuantity(userId, cartProductResponse.productId(), cartProductResponse.price());
-        return ResponseEntity.ok("Product quantity reduced");
-    }
 
     @DeleteMapping("/cart/{productId}")
     public ResponseEntity<?> deleteProductFromCart(@PathVariable String productId, Principal principal) {
