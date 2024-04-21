@@ -1,4 +1,4 @@
-package org.bfu.orderservice;
+package com.bfu.orderservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

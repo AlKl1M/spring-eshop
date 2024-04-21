@@ -1,0 +1,39 @@
+package com.bfu.orderservice.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(schema = "order_service", name = "t_order")
+public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "c_user_id")
+    private String userId;
+
+    @Column(name = "c_order_id")
+    private String orderId;
+
+    @Column(name = "c_date")
+    private String date;
+
+    @Column(name = "c_status")
+    private String status;
+
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<OrderProduct> products;
+}

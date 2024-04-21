@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8085
 spring:
   application:
     name: order_service
@@ -10,10 +10,15 @@ spring:
     url: jdbc:postgresql://localhost:5433/order
     username: order
     password: order
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8082/realms/eshop
   flyway:
     schemas:
       - public
-      - orderService
+      - order_service
   jpa:
     show-sql: true
 
