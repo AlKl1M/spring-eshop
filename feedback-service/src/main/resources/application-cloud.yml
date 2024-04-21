@@ -1,0 +1,42 @@
+eshop:
+  services:
+    catalogue:
+      uri: http://localhost:8081
+server:
+  port: 8084
+spring:
+  application:
+    name: feedback-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27028/feedback-db
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8082/realms/eshop
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: feedback-service
+            client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
+            authorization-grant-type: client_credentials
+            scope:
+              - openid
+          discovery:
+            provider: keycloak
+            client-id: feedback-service
+            client-secret: bHcUcuVY5PY5WUbtzy6JqwhfpqlJKjzr
+            authorization-grant-type: client_credentials
+            scope:
+              - discovery
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/eshop
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
