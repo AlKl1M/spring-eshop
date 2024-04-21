@@ -2,19 +2,18 @@ package com.bfu.cartservice.client;
 
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @RequiredArgsConstructor
 public class WebClientCatalogueClient implements CatalogueClient{
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     @Override
     public SimplifiedProductResponse getProductInfo(String productId) {
-        return webClient
+        return this.restClient
                 .get()
                 .uri("/api/catalogue/simplified-product-info?productId={productId}", productId)
                 .retrieve()
-                .bodyToMono(SimplifiedProductResponse.class)
-                .block();
+                .body(SimplifiedProductResponse.class);
     }
 }
