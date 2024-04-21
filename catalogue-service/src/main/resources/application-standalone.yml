@@ -1,3 +1,8 @@
+eshop:
+  services:
+    feedback:
+      uri: http://localhost:8084
+      registration-id: keycloak
 server:
   port: 8081
 spring:
