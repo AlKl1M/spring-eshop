@@ -3,6 +3,8 @@ package com.bfu.catalogueservice.configuration;
 import com.bfu.catalogueservice.client.FavouriteProductsClientImpl;
 import com.bfu.catalogueservice.security.OAuthClientHttpRequestInterceptor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -21,9 +23,11 @@ public class ClientConfig {
             @Value("${eshop.services.feedback.uri:http://localhost:8084}") String catalogueBaseUri,
             ClientRegistrationRepository clientRegistrationRepository,
             OAuth2AuthorizedClientRepository authorizedClientRepository,
-            @Value("${eshop.services.feedback.registration-id:keycloak}") String registrationId) {
+            @Value("${eshop.services.feedback.registration-id:keycloak}") String registrationId,
+            LoadBalancerClient loadBalancerClient) {
         return new FavouriteProductsClientImpl(RestClient.builder()
                 .baseUrl(catalogueBaseUri)
+                .requestInterceptor(new LoadBalancerInterceptor(loadBalancerClient))
                 .requestInterceptor(
                         new OAuthClientHttpRequestInterceptor(
                                 new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
