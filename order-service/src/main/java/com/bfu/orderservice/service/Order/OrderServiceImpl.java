@@ -2,6 +2,7 @@ package com.bfu.orderservice.service.Order;
 
 
 import com.bfu.orderservice.controller.payload.ArrayOfSimplifiedProduct;
+import com.bfu.orderservice.controller.payload.ChangeStatusRequest;
 import com.bfu.orderservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.orderservice.entity.Order;
 import com.bfu.orderservice.entity.OrderProduct;
@@ -26,27 +27,25 @@ import java.util.UUID;
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final OrderProductRepository orderProductRepository;
     @Override
     public Order createOrder(String userId) {
         String orderId = String.format("%016d", new BigInteger(UUID.randomUUID().toString()
                 .replace("-", "").substring(0,15), 16));
-        Order order = orderRepository.save(Order.builder()
+        return orderRepository.save(Order.builder()
                 .orderId(orderId)
                 .userId(userId)
                 .date("12")
-                .status("Created")
+                .status(Status.CREATED)
                 .build());
-        return order;
     }
 
     @Override
-    public List<Order> getOrder(String userId) {
+    public List<Order> getOrdersByUserId(String userId) {
         Optional<List<Order>> orders = orderRepository.findAllByUserId(userId);
         if (orders.isPresent()){
             return orders.get();
         }
-        throw new OrderNotFoundException(userId);
+        throw OrderNotFoundException.ofUser(userId);
     }
 
     @Override
@@ -54,5 +53,28 @@ public class OrderServiceImpl implements OrderService {
         log.info("Start to delete order");
         Optional<Order> order = orderRepository.findByOrderId(orderId);
         order.ifPresent(orderRepository::delete);
+    }
+
+    @Override
+    public void changeStatus(ChangeStatusRequest changeStatusRequest){
+        log.info("Start to change status");
+        Optional<Order> optionalOrder = orderRepository.findByOrderId(changeStatusRequest.orderId());
+        if (optionalOrder.isPresent()){
+            Order order = optionalOrder.get();
+            if (!order.getStatus().name().equals(changeStatusRequest.status())){
+                order.setStatus(Status.valueOf(changeStatusRequest.status()));
+                orderRepository.save(order);
+            }
+        }
+        throw OrderNotFoundException.ofOrder(changeStatusRequest.orderId());
+    }
+
+    @Override
+    public Order getOrderByOrderId(String orderId) {
+        Optional<Order> optionalOrder = orderRepository.findByOrderId(orderId);
+        if (optionalOrder.isPresent()){
+            return optionalOrder.get();
+        }
+        throw OrderNotFoundException.ofOrder(orderId);
     }
 }

@@ -2,21 +2,19 @@ package com.bfu.orderservice.controller;
 
 import com.bfu.orderservice.client.OrderServiceClient;
 import com.bfu.orderservice.controller.payload.ArrayOfSimplifiedProduct;
+import com.bfu.orderservice.controller.payload.ChangeStatusRequest;
+import com.bfu.orderservice.controller.payload.DeleteProductsFromOrderRequest;
 import com.bfu.orderservice.controller.payload.OrderResponse;
-import com.bfu.orderservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.orderservice.entity.Order;
-import com.bfu.orderservice.entity.OrderProduct;
 import com.bfu.orderservice.service.Order.OrderService;
 import com.bfu.orderservice.service.OrderProduct.OrderProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +47,19 @@ public class OrderController {
         return ResponseEntity.ok("Order has been created");
     }
 
+    @PutMapping("/change-order-status")
+    public ResponseEntity<?> changeStatus(@RequestBody ChangeStatusRequest changeStatusRequest){
+        log.info("Start to change status order");
+        orderService.changeStatus(changeStatusRequest);
+        return ResponseEntity.ok("Status has been changed");
+    }
+
     @GetMapping("/get-order")
-    public List<OrderResponse> getOrder(Principal principal){
+    public List<OrderResponse> getOrdersByUserId(Principal principal){
+        log.info("Start to getting order");
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         List<OrderResponse> responseList = new ArrayList<>();
-        for (Order order: orderService.getOrder(userId)){
+        for (Order order: orderService.getOrdersByUserId(userId)){
             responseList.add(OrderResponse.from(
                     order,
                     orderProductService.getOrderProducts(order.getOrderId())
@@ -62,11 +68,25 @@ public class OrderController {
         }
         return responseList;
     }
+    @GetMapping("/get-order/")
+    public OrderResponse getOrderByOrderId(Principal principal, @RequestParam String orderId){
+        log.info("Start to getting order");
+        Order order = orderService.getOrderByOrderId(orderId);
+        return OrderResponse.from(
+                            order,
+                            orderProductService.getOrderProducts(order.getOrderId())
+                    );
+    }
 
     @DeleteMapping("/delete-order")
     public ResponseEntity<?> deleteOrder(String orderId) {
         orderService.deleteOrder(orderId);
         orderProductService.deleteOrderProduct(orderId);
+        return ResponseEntity.noContent().build();
+    }
+    @DeleteMapping("/delete-products-order")
+    public ResponseEntity<?> deleteProductsOrder(@RequestBody DeleteProductsFromOrderRequest request){
+        orderProductService.deleteProductsOrder(request);
         return ResponseEntity.noContent().build();
     }
 }

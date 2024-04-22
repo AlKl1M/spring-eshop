@@ -1,6 +1,7 @@
 package com.bfu.orderservice.service.OrderProduct;
 
 import com.bfu.orderservice.controller.payload.ArrayOfSimplifiedProduct;
+import com.bfu.orderservice.controller.payload.DeleteProductsFromOrderRequest;
 import com.bfu.orderservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.orderservice.entity.Order;
 import com.bfu.orderservice.entity.OrderProduct;
@@ -10,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -49,5 +52,12 @@ public class OrderProductServiceImpl implements OrderProductService{
     public void deleteOrderProduct(String orderId) {
         Optional<List<OrderProduct>> products = orderProductRepository.findAllByOrder_OrderId(orderId);
         products.ifPresent(orderProductRepository::deleteAll);
+    }
+
+    @Override
+    public void deleteProductsOrder(DeleteProductsFromOrderRequest request) {
+        orderProductRepository.findAllByOrder_OrderIdAndProductIdIn(request.orderId(), request.productsId())
+                .ifPresent(orderProductRepository::deleteAll);
+
     }
 }

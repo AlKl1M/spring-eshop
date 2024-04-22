@@ -32,7 +32,7 @@ public class Order {
     private String date;
 
     @Column(name = "c_status")
-    private String status;
+    private Status status;
 
 //    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 //    private List<OrderProduct> products;
