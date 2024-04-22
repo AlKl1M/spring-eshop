@@ -1,7 +1,7 @@
 eshop:
   services:
     catalogue:
-      uri: http://localhost:8081
+      uri: lb://catalogue-service
 server:
   port: 8084
 spring:
