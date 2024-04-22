@@ -1,7 +1,7 @@
 eshop:
   services:
     feedback:
-      uri: http://localhost:8084
+      uri: lb://feedback-service
       registration-id: keycloak
 server:
   port: 8081
