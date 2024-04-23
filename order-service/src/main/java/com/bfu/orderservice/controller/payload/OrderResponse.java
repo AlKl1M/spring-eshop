@@ -5,11 +5,17 @@ import com.bfu.orderservice.entity.OrderProduct;
 import com.bfu.orderservice.entity.Status;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public record OrderResponse(
         String orderId,
-        String date,
+        Timestamp date,
         Status status,
         List<SimplifiedProductResponse> products
 ) {

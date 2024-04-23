@@ -15,4 +15,6 @@ public interface OrderProductService {
     void deleteOrderProduct(String orderId);
 
     void deleteProductsOrder(DeleteProductsFromOrderRequest request);
+
+    void addProductsToOrder(Order order, List<SimplifiedProductResponse> productsToOrderRequest);
 }

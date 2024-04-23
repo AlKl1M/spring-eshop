@@ -8,6 +8,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -29,7 +35,7 @@ public class Order {
     private String orderId;
 
     @Column(name = "c_date")
-    private String date;
+    private Timestamp date;
 
     @Column(name = "c_status")
     private Status status;

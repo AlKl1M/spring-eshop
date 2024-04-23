@@ -5,7 +5,7 @@ create table if not exists order_service.t_order
     id serial primary key not null,
     c_user_id varchar not null,
     c_order_id varchar not null,
-    c_date varchar not null,
+    c_date TIMESTAMP NOT NULL,
     c_status varchar not null
 );
 

@@ -1,5 +1,6 @@
 package com.bfu.orderservice.service.Order;
 
+import com.bfu.orderservice.controller.payload.AddProductsToOrderRequest;
 import com.bfu.orderservice.controller.payload.ArrayOfSimplifiedProduct;
 import com.bfu.orderservice.controller.payload.ChangeStatusRequest;
 import com.bfu.orderservice.entity.Order;

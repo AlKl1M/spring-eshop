@@ -1,5 +1,6 @@
 package com.bfu.orderservice.entity;
 
+import com.bfu.orderservice.controller.payload.SimplifiedProductResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +35,14 @@ public class OrderProduct {
     @JoinColumn(name = "c_order")
     @ManyToOne
     private Order order;
+
+    public static OrderProduct from(SimplifiedProductResponse simplifiedProductResponse, Order order){
+        return OrderProduct.builder()
+                .productId(simplifiedProductResponse.productId())
+                .name(simplifiedProductResponse.name())
+                .quantity(simplifiedProductResponse.quantity())
+                .price(simplifiedProductResponse.price())
+                .order(order)
+                .build();
+    }
 }

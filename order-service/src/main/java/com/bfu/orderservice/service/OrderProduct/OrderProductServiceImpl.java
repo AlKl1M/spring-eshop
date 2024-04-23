@@ -5,15 +5,14 @@ import com.bfu.orderservice.controller.payload.DeleteProductsFromOrderRequest;
 import com.bfu.orderservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.orderservice.entity.Order;
 import com.bfu.orderservice.entity.OrderProduct;
+import com.bfu.orderservice.exceptions.OrderProductsNotFoundException;
 import com.bfu.orderservice.repository.OrderProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -38,14 +37,12 @@ public class OrderProductServiceImpl implements OrderProductService{
 
     @Override
     public List<SimplifiedProductResponse> getOrderProducts(String orderId) {
-        List<SimplifiedProductResponse> products = new ArrayList<>();
         Optional<List<OrderProduct>> orderProducts = orderProductRepository.findAllByOrder_OrderId(orderId);
-        for(OrderProduct product: orderProducts.get()){
-            products.add(
-                    SimplifiedProductResponse.from(product)
-            );
+        if (orderProducts.isPresent()) {
+            return orderProducts.get().stream().map(SimplifiedProductResponse::from).toList();
         }
-        return products;
+        else
+            throw OrderProductsNotFoundException.of(orderId);
     }
 
     @Override
@@ -59,5 +56,14 @@ public class OrderProductServiceImpl implements OrderProductService{
         orderProductRepository.findAllByOrder_OrderIdAndProductIdIn(request.orderId(), request.productsId())
                 .ifPresent(orderProductRepository::deleteAll);
 
+    }
+
+    @Override
+    public void addProductsToOrder(Order order, List<SimplifiedProductResponse> simplifiedProductList) {
+        orderProductRepository.saveAll(
+                simplifiedProductList.stream()
+                        .map(p->OrderProduct.from(p, order))
+                        .toList()
+        );
     }
 }
