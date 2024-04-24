@@ -1,7 +1,6 @@
 package com.bfu.cartservice.service;
 
 import com.bfu.cartservice.controller.payload.ArrayOfSimplifiedProduct;
-import com.bfu.cartservice.controller.payload.CartPayload;
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.cartservice.entity.Cart;
 import com.bfu.cartservice.entity.Product;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,13 +19,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
-
-    @Override
-    public List<CartPayload> getAllCarts() {
-        return cartRepository.findAll().stream()
-                .map(CartPayload::from)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public ArrayOfSimplifiedProduct getCartByUserId(String userId) {
@@ -61,10 +52,10 @@ public class CartServiceImpl implements CartService{
                 .findFirst();
         if (existingProduct.isPresent()) {
             Product product = existingProduct.get();
-            product.setQuantity(product.getQuantity() + 1);
-            product.setPrice(product.getPrice().add(newProduct.getPrice()));
+            product.setQuantity(product.getQuantity() + newProduct.getQuantity());
+            product.setPrice(product.getPrice().add(newProduct.getPrice().multiply(BigDecimal.valueOf(newProduct.getQuantity()))));
         } else {
-            newProduct.setQuantity(1);
+            newProduct.setPrice(newProduct.getPrice().multiply(BigDecimal.valueOf(newProduct.getQuantity())));
             products.add(newProduct);
         }
         cart.setTotalPrice(cart.getTotalPrice().add(newProduct.getPrice()));

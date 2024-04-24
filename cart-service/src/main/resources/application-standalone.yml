@@ -1,9 +1,9 @@
+server:
+  port: 8083
 eshop:
   services:
     catalogue:
       uri: http://localhost:8081
-server:
-  port: 8083
 spring:
   application:
     name: cart-service
@@ -40,4 +40,4 @@ springdoc:
       client-id: cart-service-swagger-ui
       use-pkce-with-authorization-code-grant: true
 keycloak:
-  uri: http://localhost:8082
+  uri: http://172.17.0.1:8082

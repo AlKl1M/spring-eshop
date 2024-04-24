@@ -1,10 +1,9 @@
+server:
+  port: 8083
 eshop:
   services:
     catalogue:
       uri: lb://catalogue-service
-      registration-id: keycloak
-server:
-  port: 8083
 spring:
   application:
     name: cart-service
@@ -35,13 +34,13 @@ spring:
         provider:
           keycloak:
             issuer-uri: http://localhost:8082/realms/eshop
-keycloak:
-  uri: http://localhost:8082
 springdoc:
   swagger-ui:
     oauth:
       client-id: cart-service-swagger-ui
       use-pkce-with-authorization-code-grant: true
+keycloak:
+  uri: http://172.17.0.1:8082
 eureka:
   client:
     service-url:
