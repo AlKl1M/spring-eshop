@@ -1,9 +1,9 @@
+server:
+  port: 8083
 eshop:
   services:
     catalogue:
       uri: http://localhost:8081
-server:
-  port: 8083
 spring:
   application:
     name: cart-service
@@ -15,10 +15,29 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8082/realms/eshop
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: customer-service
+            client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
+            authorization-grant-type: client_credentials
+            scope:
+              - openid
+          discovery:
+            provider: keycloak
+            client-id: customer-service
+            client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
+            authorization-grant-type: client_credentials
+            scope:
+              - discovery
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/eshop
 springdoc:
   swagger-ui:
     oauth:
       client-id: cart-service-swagger-ui
       use-pkce-with-authorization-code-grant: true
 keycloak:
-  uri: http://localhost:8082
+  uri: http://172.17.0.1:8082

@@ -31,7 +31,7 @@ public class DiscoveryConfig {
                         OAuth2AuthorizedClient authorizedClient = authorizedClientManager
                                 .authorize(OAuth2AuthorizeRequest
                                         .withClientRegistrationId("discovery")
-                                        .principal("feedback-service")
+                                        .principal("cart-service")
                                         .build());
 
                         request.setHeader(HttpHeaders.AUTHORIZATION,
