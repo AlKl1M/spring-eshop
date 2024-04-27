@@ -16,17 +16,20 @@ import java.util.Objects;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class BadRequestControllerAdvice {
+
     private final MessageSource messageSource;
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ProblemDetail> handleBindException(BindException exception, Locale locale) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                Objects.requireNonNull(this.messageSource.getMessage("errors.400.title", new Object[0],
-                        "errors.400.title", locale)));
+        ProblemDetail problemDetail = ProblemDetail
+                .forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                        this.messageSource.getMessage("errors.400.title", new Object[0],
+                                "errors.400.title", locale));
         problemDetail.setProperty("errors",
                 exception.getAllErrors().stream()
                         .map(ObjectError::getDefaultMessage)
                         .toList());
+
         return ResponseEntity.badRequest()
                 .body(problemDetail);
     }
