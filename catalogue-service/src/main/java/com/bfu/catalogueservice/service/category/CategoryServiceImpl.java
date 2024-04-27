@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,10 +36,10 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public void deleteCategory(String categoryId) {
         log.info("Start deleting brand with categoryId {}", categoryId);
-        Category category = categoryRepository.findByCategoryId(categoryId);
-        if (category != null){
+        Optional<Category> category = categoryRepository.findByCategoryId(categoryId);
+        if (category.isPresent()){
             productRepository.deleteAll(productRepository.findAllByCategory(category));
-            categoryRepository.delete(category);
+            categoryRepository.delete(category.get());
         }
         else {
             log.error("Category not found with categoryId {}", categoryId);
@@ -59,8 +60,9 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public void updateCategory(UpdateCategoryRequest categoryRequest){
         log.info("Start updating category with name {}", categoryRequest.newName());
-        Category category = categoryRepository.findByCategoryId(categoryRequest.categoryId());
-        if (category != null){
+        Optional<Category> optionalCategory = categoryRepository.findByCategoryId(categoryRequest.categoryId());
+        if (optionalCategory.isPresent()){
+            Category category = optionalCategory.get();
             category.setName(categoryRequest.newName());
             categoryRepository.save(category);
         }

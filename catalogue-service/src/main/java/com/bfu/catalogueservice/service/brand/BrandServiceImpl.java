@@ -1,5 +1,6 @@
 package com.bfu.catalogueservice.service.brand;
 
+import com.bfu.catalogueservice.controller.BrandController;
 import com.bfu.catalogueservice.controller.payload.Brand.BrandResponse;
 import com.bfu.catalogueservice.controller.payload.Brand.CreateBrandRequest;
 import com.bfu.catalogueservice.controller.payload.Brand.UpdateBrandRequest;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,10 +38,10 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public void deleteBrand(String brandId) {
         log.info("Start delete brand with BrandId {}", brandId);
-        Brand brand = brandRepository.findByBrandId(brandId);
-        if (brand != null){
+        Optional<Brand> brand = brandRepository.findByBrandId(brandId);
+        if (brand.isPresent()){
             productRepository.deleteAll(productRepository.findAllByBrand(brand));
-            brandRepository.delete(brand);
+            brandRepository.delete(brand.get());
         }
         else {
             log.error("Brand not found with brandId {}", brandId);
@@ -60,8 +62,9 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public void updateBrand(UpdateBrandRequest brandRequest) {
         log.info("Start updating brand with name {}", brandRequest.newName());
-        Brand brand = brandRepository.findByBrandId(brandRequest.brandId());
-        if (brand != null){
+        Optional<Brand> optionalBrand = brandRepository.findByBrandId(brandRequest.brandId());
+        if (optionalBrand.isPresent()){
+            Brand brand = optionalBrand.get();
             brand.setName(brandRequest.newName());
             brandRepository.save(brand);
         }

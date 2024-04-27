@@ -15,11 +15,14 @@ import lombok.NoArgsConstructor;
 public class ProductPhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
+
     @Column(name = "c_photo_id")
     private String photoId;
 
     @JoinColumn(name = "c_product_id")
-    private String productId;
+    @ManyToOne
+    private Product product;
 
     @Column(name = "c_is_preview")
     private boolean isPreview;

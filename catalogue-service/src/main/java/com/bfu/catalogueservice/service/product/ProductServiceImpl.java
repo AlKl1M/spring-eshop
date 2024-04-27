@@ -1,23 +1,34 @@
 package com.bfu.catalogueservice.service.product;
 
 import com.bfu.catalogueservice.controller.payload.Product.*;
+import com.bfu.catalogueservice.controller.payload.ProductPhoto.CreateProductPhotoResponse;
 import com.bfu.catalogueservice.entity.Brand;
 import com.bfu.catalogueservice.entity.Category;
 import com.bfu.catalogueservice.entity.Product;
+import com.bfu.catalogueservice.entity.ProductPhoto;
 import com.bfu.catalogueservice.exception.BrandNotFoundException;
+import com.bfu.catalogueservice.exception.CanNotReadPhotoException;
 import com.bfu.catalogueservice.exception.CategoryNotFoundException;
 import com.bfu.catalogueservice.exception.ProductNotFoundException;
 import com.bfu.catalogueservice.repository.BrandRepository;
 import com.bfu.catalogueservice.repository.CategoryRepository;
+import com.bfu.catalogueservice.repository.ProductPhotoRepository;
 import com.bfu.catalogueservice.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
+
+import static org.apache.commons.lang3.BooleanUtils.forEach;
 
 @Service
 @AllArgsConstructor
@@ -27,22 +38,32 @@ public class ProductServiceImpl implements ProductService{
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     @Override
-    public void createProduct(CreateProductRequest productRequest) {
+    public CreateProductPhotoResponse createProduct(CreateProductRequest productRequest) {
         log.info("Start creating product with name {}", productRequest.name());
-        Brand brand = brandRepository.findByBrandId(productRequest.brandId());
-        Category category = categoryRepository.findByCategoryId(productRequest.categoryId());
-        if (brand != null) {
-            if (category != null) {
-                Product product = Product.builder()
+        Optional<Brand> brand = brandRepository.findByBrandId(productRequest.brandId());
+        Optional<Category> category = categoryRepository.findByCategoryId(productRequest.categoryId());
+        List<BufferedImage> images = productRequest.images().stream()
+                .map(p-> {
+                    try {
+                        return ImageIO.read(new ByteArrayInputStream(p));
+                    } catch (IOException e) {
+                        throw CanNotReadPhotoException.of(p);
+                    }
+                }).toList();
+        if (brand.isPresent()) {
+            if (category.isPresent()) {
+                Product product =
+                        Product.builder()
                         .productId(UUID.randomUUID().toString().substring(0,15))
                         .price(productRequest.price())
                         .name(productRequest.name())
                         .attributes(productRequest.attributes())
                         .description(productRequest.description())
-                        .brand(brand)
-                        .category(category)
+                        .brand(brand.get())
+                        .category(category.get())
                         .build();
                 productRepository.save(product);
+                return CreateProductPhotoResponse.from(product, images);
             }
             else {
                 log.error("Category not found with categoryId {}", productRequest.categoryId());
@@ -68,15 +89,11 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public void updateProduct(UpdateProductRequest productRequest) {
         log.info("Start updating product with name {}", productRequest.newName());
-        Brand brand = brandRepository.findByBrandId(productRequest.newBrandId());
-        Category category = categoryRepository.findByCategoryId(productRequest.newCategoryId());
+        Optional<Brand> brand = brandRepository.findByBrandId(productRequest.newBrandId());
+        Optional<Category> category = categoryRepository.findByCategoryId(productRequest.newCategoryId());
         Product product = productRepository.findByProductId(productRequest.productId());
-        if (brand != null) {
-            product.setBrand(brand);
-        }
-        if (category != null) {
-            product.setCategory(category);
-        }
+        brand.ifPresent(product::setBrand);
+        category.ifPresent(product::setCategory);
         if (productRequest.newPrice() != null) {
             product.setPrice(productRequest.newPrice());
         }
@@ -177,5 +194,8 @@ public class ProductServiceImpl implements ProductService{
         }
         return products;
     }
-
+    @Override
+    public boolean isProductExists(String productId) {
+        return productRepository.existsProductByProductId(productId);
+    }
 }
