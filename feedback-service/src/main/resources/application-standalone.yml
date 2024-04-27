@@ -15,3 +15,22 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8082/realms/eshop
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: feedback-service
+            client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
+            authorization-grant-type: client_credentials
+            scope:
+              - openid
+          discovery:
+            provider: keycloak
+            client-id: feedback-service
+            client-secret: bHcUcuVY5PY5WUbtzy6JqwhfpqlJKjzr
+            authorization-grant-type: client_credentials
+            scope:
+              - discovery
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/eshop
