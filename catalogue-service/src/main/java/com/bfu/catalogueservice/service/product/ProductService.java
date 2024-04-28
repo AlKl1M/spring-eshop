@@ -10,19 +10,19 @@ import java.util.List;
 public interface ProductService {
     CreateProductPhotoResponse createProduct(CreateProductRequest productRequest);
 
-    List<FullProductResponse> getAllProducts();
+    List<Product> getAllProducts();
 
     void updateProduct(UpdateProductRequest productRequest);
 
     void deleteProduct(String productId);
 
-    SimplifiedProductResponse getSimpleProductById(String productId);
+    SimplifiedProductResponse getSimpleProductById(String productId, List<String> photos);
 
-    FullProductResponse getFullProductById(String productId);
+    FullProductResponse getFullProductById(String productId, List<String> photos);
 
-    ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(List<String> productsId);
+    List<Product> getArraySimpleProductsById(List<String> productsId);
 
-    ArrayList<FullProductResponse> getArrayFullProductsById(List<String> productsId);
+    List<Product> getArrayFullProductsById(List<String> productsId);
 
     boolean isProductExists(String productId);
 }

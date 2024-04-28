@@ -6,12 +6,10 @@ import com.bfu.catalogueservice.controller.payload.Product.*;
 import com.bfu.catalogueservice.controller.payload.ProductPhoto.CreateProductPhotoResponse;
 import com.bfu.catalogueservice.entity.Product;
 import com.bfu.catalogueservice.service.product.ProductService;
-import com.bfu.catalogueservice.service.product_photo.ProductPhotoService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,26 +34,46 @@ public class ProductController {
     }
     @GetMapping("/getAllProducts")
     public List<FullProductResponse> getAllProducts(){
-        return productService.getAllProducts();
+        List<Product> products = productService.getAllProducts();
+        return products
+                .stream()
+                .map(p->FullProductResponse.from(p, productPhotoController.getProductPhotos(p.getProductId())))
+                .toList();
     }
 
     @GetMapping("/simplified-product-info")
     public SimplifiedProductResponse getSimpleProductById(@RequestParam String productId){
-        return productService.getSimpleProductById(productId);
+        List<String> photos = productPhotoController.getProductPhotos(productId);
+        return productService.getSimpleProductById(productId, photos);
     }
     @GetMapping("/full-product-info")
     public FullProductResponse getFullProductById(@RequestParam String productId){
-        return productService.getFullProductById(productId);
+        List<String> photos = productPhotoController.getProductPhotos(productId);
+        return productService.getFullProductById(productId, photos);
     }
     @GetMapping("/simplified-products-info")
-    public List<SimplifiedProductResponse> getArraySimpleProductsById(){
+    public ResponseEntity<?> getArraySimpleProductsById(){
         ArrayOfProductsIdRequest array = client.getProductsIdByUserId();
-        return productService.getArraySimpleProductsById(array.productsId());
+        List<Product> products = productService.getArraySimpleProductsById(array.productsId());
+        log.info("Getting Array Simplified products where productId in {}", array.productsId());
+        return ResponseEntity.ok(
+                products.stream()
+                        .map(p->SimplifiedProductResponse.from(p,
+                                productPhotoController.getProductPhotos(p.getProductId())))
+                        .toList()
+        );
     }
     @GetMapping("/full-products-info")
-    public List<FullProductResponse> getArrayFullProductById(){
+    public ResponseEntity<?> getArrayFullProductById(){
         ArrayOfProductsIdRequest array = client.getProductsIdByUserId();
-        return productService.getArrayFullProductsById(array.productsId());
+        List<Product> products = productService.getArrayFullProductsById(array.productsId());
+        log.info("Getting Array Full products where productId in {}", array.productsId());
+        return ResponseEntity.ok(
+                        products.stream()
+                                .map(p->FullProductResponse.from(p,
+                                        productPhotoController.getProductPhotos(p.getProductId())))
+                                .toList()
+        );
     }
 
     @GetMapping("/is-exists")

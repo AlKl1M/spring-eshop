@@ -14,8 +14,10 @@ import com.bfu.catalogueservice.repository.BrandRepository;
 import com.bfu.catalogueservice.repository.CategoryRepository;
 import com.bfu.catalogueservice.repository.ProductPhotoRepository;
 import com.bfu.catalogueservice.repository.ProductRepository;
+import com.bfu.catalogueservice.service.image.ImageService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -37,19 +39,13 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
+    private final ImageService imageService;
     @Override
     public CreateProductPhotoResponse createProduct(CreateProductRequest productRequest) {
         log.info("Start creating product with name {}", productRequest.name());
         Optional<Brand> brand = brandRepository.findByBrandId(productRequest.brandId());
         Optional<Category> category = categoryRepository.findByCategoryId(productRequest.categoryId());
-        List<BufferedImage> images = productRequest.images().stream()
-                .map(p-> {
-                    try {
-                        return ImageIO.read(new ByteArrayInputStream(p));
-                    } catch (IOException e) {
-                        throw CanNotReadPhotoException.of(p);
-                    }
-                }).toList();
+        imageService.createBufferedImages(productRequest.images());
         if (brand.isPresent()) {
             if (category.isPresent()) {
                 Product product =
@@ -63,7 +59,10 @@ public class ProductServiceImpl implements ProductService{
                         .category(category.get())
                         .build();
                 productRepository.save(product);
-                return CreateProductPhotoResponse.from(product, images);
+                return CreateProductPhotoResponse.from(
+                        product,
+                        imageService.createBufferedImages(productRequest.images())
+                );
             }
             else {
                 log.error("Category not found with categoryId {}", productRequest.categoryId());
@@ -77,13 +76,9 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<FullProductResponse> getAllProducts() {
+    public List<Product> getAllProducts() {
         log.info("Getting all products");
-        List<FullProductResponse> products = new ArrayList<>();
-        for (Product product: productRepository.findAll()){
-            products.add(FullProductResponse.from(product));
-        }
-        return products;
+        return productRepository.findAll();
     }
 
     @Override
@@ -91,28 +86,31 @@ public class ProductServiceImpl implements ProductService{
         log.info("Start updating product with name {}", productRequest.newName());
         Optional<Brand> brand = brandRepository.findByBrandId(productRequest.newBrandId());
         Optional<Category> category = categoryRepository.findByCategoryId(productRequest.newCategoryId());
-        Product product = productRepository.findByProductId(productRequest.productId());
-        brand.ifPresent(product::setBrand);
-        category.ifPresent(product::setCategory);
-        if (productRequest.newPrice() != null) {
-            product.setPrice(productRequest.newPrice());
+        Optional<Product> optionalProduct = productRepository.findByProductId(productRequest.productId());
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+            brand.ifPresent(product::setBrand);
+            category.ifPresent(product::setCategory);
+            if (productRequest.newPrice() != null) {
+                product.setPrice(productRequest.newPrice());
+            }
+            if (productRequest.newName() != null) {
+                product.setName(productRequest.newName());
+            }
+            if (productRequest.description() != null) {
+                product.setDescription(productRequest.description());
+            }
+            productRepository.save(product);
         }
-        if (productRequest.newName() != null) {
-            product.setName(productRequest.newName());
-        }
-        if (productRequest.description() != null) {
-            product.setDescription(productRequest.description());
-        }
-        productRepository.save(product);
 
     }
 
     @Override
     public void deleteProduct(String productId) {
         log.info("Start deleting product with productId {}", productId);
-        Product product = productRepository.findByProductId(productId);
-        if (product != null) {
-            productRepository.delete(product);
+        Optional<Product> optionalProduct = productRepository.findByProductId(productId);
+        if (optionalProduct.isPresent()) {
+            productRepository.delete(optionalProduct.get());
         }
         else {
             log.error("Product not found with productId {}", productId);
@@ -121,78 +119,37 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public SimplifiedProductResponse getSimpleProductById(String productId) {
+    public SimplifiedProductResponse getSimpleProductById(String productId, List<String> photos) {
         log.info("Getting Simplified product with productId {}", productId);
-        Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
-        if (result.isPresent()) {
-            Product product = result.get();
-            return new SimplifiedProductResponse(
-                    product.getProductId(),
-                    product.getName(),
-                    product.getPrice()
-            );
+        Optional<Product> optionalProduct = productRepository.findByProductId(productId);
+        if (optionalProduct.isPresent()) {
+            return SimplifiedProductResponse.from(optionalProduct.get(), photos);
         }
         log.error("Product not found with productId {}", productId);
         throw new ProductNotFoundException(productId);
     }
 
     @Override
-    public FullProductResponse getFullProductById(String productId) {
+    public FullProductResponse getFullProductById(String productId, List<String> photos) {
         log.info("Getting Full product with productId {}", productId);
-        Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
-        if (result.isPresent()) {
-            Product product = result.get();
-            return new FullProductResponse(
-                    product.getProductId(),
-                    product.getName(),
-                    product.getPrice(),
-                    product.getAttributes(),
-                    product.getDescription(),
-                    product.getCategory(),
-                    product.getBrand());
+        Optional<Product> optionalProduct = productRepository.findByProductId(productId);
+        if (optionalProduct.isPresent()) {
+            return FullProductResponse.from(optionalProduct.get(), photos);
         }
         log.error("Product not found with productId {}", productId);
         throw new ProductNotFoundException(productId);
     }
 
     @Override
-    public ArrayList<SimplifiedProductResponse> getArraySimpleProductsById(List<String> productsId) {
-        log.info("Getting Array Simplified products by productsId {}", productsId);
-        ArrayList<SimplifiedProductResponse> products = new ArrayList<>();
-        for (String productId: productsId){
-            Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
-            if (result.isPresent()){
-                Product product = result.get();
-                products.add(new SimplifiedProductResponse(
-                        product.getProductId(),
-                        product.getName(),
-                        product.getPrice()
-                ));
-            }
-        }
-        return products;
+    public List<Product> getArraySimpleProductsById(List<String> productsId) {
+        log.info("Getting Array products where productId in {}", productsId);
+        return productRepository.findAllByProductIdIn(productsId);
     }
 
     @Override
-    public ArrayList<FullProductResponse> getArrayFullProductsById(List<String> productsId) {
-        log.info("Getting Array Full products by productsId {}", productsId);
-        ArrayList<FullProductResponse> products = new ArrayList<>();
-        for (String productId: productsId){
-            Optional<Product> result = Optional.ofNullable(productRepository.findByProductId(productId));
-            if (result.isPresent()){
-                Product product = result.get();
-                products.add(new FullProductResponse(
-                        product.getProductId(),
-                        product.getName(),
-                        product.getPrice(),
-                        product.getAttributes(),
-                        product.getDescription(),
-                        product.getCategory(),
-                        product.getBrand()
-                ));
-            }
-        }
-        return products;
+    public List<Product> getArrayFullProductsById(List<String> productsId) {
+        log.info("Getting Array products where productId in {}", productsId);
+        return productRepository.findAllByProductIdIn(productsId);
     }
     @Override
     public boolean isProductExists(String productId) {

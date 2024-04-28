@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 public interface ProductPhotoRepository extends JpaRepository<ProductPhoto, Long>{
-    Optional<List<ProductPhoto>> findAllByProductId(Long id);
-
-    Optional<List<ProductPhoto>> findAllByProduct(Product byProductId);
+    Optional<List<ProductPhoto>> findProductPhotosByProduct_ProductId(String productId);
+    Optional<List<ProductPhoto>> findAllByPhotoIdIn(List<String> photosId);
 }

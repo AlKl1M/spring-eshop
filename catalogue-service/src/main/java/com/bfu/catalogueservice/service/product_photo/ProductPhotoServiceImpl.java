@@ -1,63 +1,74 @@
 package com.bfu.catalogueservice.service.product_photo;
 
 import com.bfu.catalogueservice.controller.payload.ProductPhoto.CreateProductPhotoResponse;
-import com.bfu.catalogueservice.entity.Product;
+import com.bfu.catalogueservice.controller.payload.ProductPhoto.DeleteProductPhotoRequest;
 import com.bfu.catalogueservice.entity.ProductPhoto;
 import com.bfu.catalogueservice.exception.ProductNotFoundException;
 import com.bfu.catalogueservice.repository.ProductPhotoRepository;
-import com.bfu.catalogueservice.repository.ProductRepository;
+import com.bfu.catalogueservice.service.image.ImageService;
 import lombok.AllArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
-import javax.imageio.ImageIO;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class ProductPhotoServiceImpl implements ProductPhotoService{
     private final ProductPhotoRepository productPhotoRepository;
-    private final String GLOBAL_PATH = Paths.get("").toAbsolutePath().toString();
+    private final ImageService imageService;
     @Override
+    @Transactional
     public void createProductPhoto(CreateProductPhotoResponse productPhotoResponse) throws IOException {
         boolean flag = true;
         for (BufferedImage bufferedImage: productPhotoResponse.images()){
-            String photoId = String.format("%016d", new BigInteger(UUID.randomUUID().toString()
-                    .replace("-", "").substring(0,15), 16));
-            String path =
-                    GLOBAL_PATH + String.format("/catalogue-service/src/main/resources/products-photo/%s/%s.jpg",
-                            productPhotoResponse.product().getProductId(),
-                            photoId
-                            );
-            File outputfile = new File(path);
-            System.out.println(outputfile.getAbsolutePath());
-            outputfile.mkdirs();
-            ImageIO.write(bufferedImage, "jpg", outputfile);
             if (flag) {
+                String photoId = imageService.createImage(bufferedImage, flag, productPhotoResponse.product().getProductId());
                 productPhotoRepository.save(
                         ProductPhoto.builder()
                                 .isPreview(flag)
                                 .product(productPhotoResponse.product())
                                 .photoId(photoId)
-                                .url(outputfile.getAbsolutePath())
+                                .url(imageService.getPathByPhotoId(photoId))
                                 .build()
                 );
                 flag = false;
             }
-            else {
-                productPhotoRepository.save(
+            String photoId = imageService.createImage(bufferedImage, flag, productPhotoResponse.product().getProductId());
+            productPhotoRepository.save(
                     ProductPhoto.builder()
                             .isPreview(flag)
                             .product(productPhotoResponse.product())
                             .photoId(photoId)
-                            .url(outputfile.getAbsolutePath())
+                            .url(imageService.getPathByPhotoId(photoId))
                             .build());
             }
         }
+
+    @Override
+    public List<String> getProductPhotos(String productId) {
+        Optional<List<ProductPhoto>> optionalProductPhotos =
+                productPhotoRepository.findProductPhotosByProduct_ProductId(productId);
+        if (optionalProductPhotos.isPresent()) {
+            System.out.println(List.of(optionalProductPhotos.get().stream().map(ProductPhoto::getPhotoId)));
+            return optionalProductPhotos.get().stream().map(ProductPhoto::getPhotoId).toList();
+        }
+        throw ProductNotFoundException.of(productId);
+    }
+
+    ///TODO
+    @Override
+    @Transactional
+    public void deleteProductPhoto(DeleteProductPhotoRequest request) throws IOException {
+//        Optional<List<ProductPhoto>> optionalProductPhotos =
+//                productPhotoRepository.findAllByPhotoIdIn(request.photosId());
+//        System.out.println(optionalProductPhotos.get().toString());
+//        optionalProductPhotos.ifPresent(productPhotoRepository::deleteAll);
+//        imageService.deletePhoto(request);
     }
 }

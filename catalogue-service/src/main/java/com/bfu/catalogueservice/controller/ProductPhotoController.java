@@ -1,6 +1,7 @@
 package com.bfu.catalogueservice.controller;
 
 import com.bfu.catalogueservice.controller.payload.ProductPhoto.CreateProductPhotoResponse;
+import com.bfu.catalogueservice.controller.payload.ProductPhoto.DeleteProductPhotoRequest;
 import com.bfu.catalogueservice.service.product_photo.ProductPhotoService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 
 @RestController
@@ -29,15 +31,24 @@ public class ProductPhotoController {
     private final ResourceLoader resourceLoader;
 
     @PostMapping("/create-product-photo")
-    public void createProductPhoto(@RequestBody CreateProductPhotoResponse response) throws IOException {
+    public ResponseEntity<?> createProductPhoto(@RequestBody CreateProductPhotoResponse response) throws IOException {
         productPhotoService.createProductPhoto(response);
+        return ResponseEntity.ok("Photo has been created");
     }
-    @GetMapping(value = "/get-product-photo")
-    public void getResourceInfo(HttpServletResponse response, @RequestParam String productId, String photoId) throws IOException {
-        Resource res = resourceLoader.getResource(String.format("classpath:products-photo/%s/%s.jpg",productId,photoId));
+    public List<String> getProductPhotos(String productId){
+        return productPhotoService.getProductPhotos(productId);
+    }
+    @GetMapping("/get-product-photo")
+    public void getProductPhoto(HttpServletResponse response, @RequestParam String productId, String photoId) throws IOException {
+        Resource res = resourceLoader.getResource(String.format("classpath:products-photo/%s/Catalogue/%s.jpg",productId,photoId));
         InputStream inputStream = res.getInputStream();
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         IOUtils.copy(inputStream, response.getOutputStream());
+    }
+    @DeleteMapping("/delete-product-photo")
+    public ResponseEntity<?> deleteProductPhoto(@RequestBody DeleteProductPhotoRequest request) throws IOException {
+        productPhotoService.deleteProductPhoto(request);
+        return ResponseEntity.noContent().build();
     }
 
 }
