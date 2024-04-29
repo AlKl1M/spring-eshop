@@ -2,11 +2,15 @@ eshop:
   services:
     catalogue:
       uri: lb://catalogue-service
+      registration-id: keycloak
 server:
   port: 8084
 spring:
   application:
     name: feedback-service
+  cloud:
+    config:
+      enabled: false
   data:
     mongodb:
       uri: mongodb://localhost:27028/feedback-db
@@ -20,7 +24,7 @@ spring:
           keycloak:
             provider: keycloak
             client-id: feedback-service
-            client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
+            client-secret: bHcUcuVY5PY5WUbtzy6JqwhfpqlJKjzr
             authorization-grant-type: client_credentials
             scope:
               - openid
