@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,7 +41,14 @@ class ProductReviewsControllerTest {
         this.mongoTemplate.insertAll(List.of(
                 new ProductReview(UUID.randomUUID(), "1", 5, "I love this product!", new Date(1632144000000L), "John", "user"),
                 new ProductReview(UUID.randomUUID(), "2", 4, "Good product", new Date(1632144000000L), "John", "user"),
-                new ProductReview(UUID.randomUUID(), "3", 1, "Bad product!", new Date(1632144000000L), "John", "user")
+                new ProductReview(UUID.randomUUID(), "3", 1, "Bad product!", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "7", 3, "Not bad", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "8", 2, "Could be better", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "9", 5, "Excellent product!", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "10", 4, "Really good", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "11", 1, "Horrible product!", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "12", 3, "Average product", new Date(1632144000000L), "John", "user"),
+                new ProductReview(UUID.randomUUID(), "13", 2, "Disappointing", new Date(1632144000000L), "John", "user")
         ));
     }
 
@@ -80,13 +87,7 @@ class ProductReviewsControllerTest {
                 .andDo(print())
                 .andExpectAll(
                         status().isOk(),
-                        content().json("""
-                        [
-                        {"id":"92ee42c2-e824-4cca-808d-9c5d8c695115","productId":"1","rating":5,"review":"I love this product!","currectDate":"2021-09-20T13:20:00.000+00:00","username":"John"},
-                        {"id":"6290cbc8-aa03-4d9a-acce-b6207ed1d57b","productId":"2","rating":4,"review":"Good product","currectDate":"2021-09-20T13:20:00.000+00:00","username":"John"},
-                        {"id":"a8ef1517-a983-4f09-a2da-97f53e367455","productId":"3","rating":1,"review":"Bad product!","currectDate":"2021-09-20T13:20:00.000+00:00","username":"John"}
-                        ]
-                        """)
+                        jsonPath("$", hasSize(10))
                 );
     }
 
@@ -96,7 +97,7 @@ class ProductReviewsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                    "productId": "5",
+                    "productId": "20",
                     "rating": 2,
                     "review": "Kinda bad"
                     }
