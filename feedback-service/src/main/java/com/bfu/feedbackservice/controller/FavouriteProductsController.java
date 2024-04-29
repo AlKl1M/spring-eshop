@@ -1,11 +1,14 @@
 package com.bfu.feedbackservice.controller;
 
+import com.bfu.feedbackservice.client.CatalogueClient;
 import com.bfu.feedbackservice.controller.payload.ArrayOfProductsIdRequest;
 import com.bfu.feedbackservice.controller.payload.NewFavouriteProductPayload;
 import com.bfu.feedbackservice.entity.FavouriteProduct;
+import com.bfu.feedbackservice.exception.ProductNotFoundException;
 import com.bfu.feedbackservice.service.FavouriteProductsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FavouriteProductsController {
     private final FavouriteProductsService favouriteProductsService;
+    private final CatalogueClient client;
 
     @GetMapping
     public List<FavouriteProduct> findFavouriteProducts(Principal principal) {
@@ -52,15 +56,20 @@ public class FavouriteProductsController {
                 throw new BindException(bindingResult);
             }
         } else {
-            String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-            return favouriteProductsService.addProductToFavourites(payload.productId(), userId);
+            if (client.isProductExist(payload.productId())) {
+                String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+                return favouriteProductsService.addProductToFavourites(payload.productId(), userId);
+            } else {
+                throw new ProductNotFoundException("Product does not exist");
+            }
         }
     }
 
     @DeleteMapping("by-product-id/{productId}")
-    public void removeProductFromFavourites(@PathVariable("productId") String productId,
-                                                         Principal principal) {
+    public ResponseEntity<?> removeProductFromFavourites(@PathVariable("productId") String productId,
+                                                      Principal principal) {
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
         favouriteProductsService.removeProductFromFavourites(productId, userId);
+        return ResponseEntity.ok("Product removed from favourites");
     }
 }

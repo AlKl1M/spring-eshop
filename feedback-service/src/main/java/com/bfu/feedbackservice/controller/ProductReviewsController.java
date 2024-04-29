@@ -3,7 +3,6 @@ package com.bfu.feedbackservice.controller;
 import com.bfu.feedbackservice.controller.payload.NewProductReviewPayload;
 import com.bfu.feedbackservice.controller.payload.ProductReviewDto;
 import com.bfu.feedbackservice.controller.payload.UpdateProductReviewPayload;
-import com.bfu.feedbackservice.entity.ProductReview;
 import com.bfu.feedbackservice.service.ProductReviewsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
