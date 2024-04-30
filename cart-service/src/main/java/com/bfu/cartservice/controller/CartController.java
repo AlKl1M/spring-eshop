@@ -6,6 +6,7 @@ import com.bfu.cartservice.controller.payload.ArrayOfSimplifiedProduct;
 import com.bfu.cartservice.controller.payload.SimplifiedProductResponse;
 import com.bfu.cartservice.entity.Product;
 import com.bfu.cartservice.service.CartService;
+import com.bfu.cartservice.util.BindingChecker;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -13,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -37,28 +36,18 @@ public class CartController {
     }
 
     @PostMapping("/cart")
+    @BindingChecker
     public ResponseEntity<?> addToCart(@Valid @RequestBody AddProductToCartPayload payload,
-                                       BindingResult bindingResult,
-                                       Principal principal)
-            throws BindException {
+                                       Principal principal) {
         String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-        System.out.println(userId);
-        if (bindingResult.hasErrors()) {
-            if (bindingResult instanceof BindException exception) {
-                throw exception;
-            } else {
-                throw new BindException(bindingResult);
-            }
-        } else {
-            SimplifiedProductResponse cartProductResponse = client.getProductInfo(payload.productId());
-            Product product = Product.builder()
-                    .id(cartProductResponse.productId())
-                    .name(cartProductResponse.name())
-                    .price(cartProductResponse.price())
-                    .quantity(payload.quantity()).build();
-            cartService.addToCart(userId, product);
-            return ResponseEntity.ok("Product added to cart");
-        }
+        SimplifiedProductResponse cartProductResponse = client.getProductInfo(payload.productId());
+        Product product = Product.builder()
+                .id(cartProductResponse.productId())
+                .name(cartProductResponse.name())
+                .price(cartProductResponse.price())
+                .quantity(payload.quantity()).build();
+        cartService.addToCart(userId, product);
+        return ResponseEntity.ok("Product added to cart");
     }
 
     @PatchMapping("/cart/increase")
