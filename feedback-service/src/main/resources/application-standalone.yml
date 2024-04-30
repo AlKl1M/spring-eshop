@@ -34,3 +34,8 @@ spring:
         provider:
           keycloak:
             issuer-uri: http://localhost:8082/realms/eshop
+keycloak:
+  uri: http://localhost:8082
+eureka:
+  client:
+    enabled: false

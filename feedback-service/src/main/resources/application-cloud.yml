@@ -8,9 +8,6 @@ server:
 spring:
   application:
     name: feedback-service
-  cloud:
-    config:
-      enabled: false
   data:
     mongodb:
       uri: mongodb://localhost:27028/feedback-db
@@ -18,7 +15,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8082/realms/eshop
+          issuer-uri: http://172.17.0.1:8082/realms/eshop
       client:
         registration:
           keycloak:
@@ -37,7 +34,14 @@ spring:
               - discovery
         provider:
           keycloak:
-            issuer-uri: http://localhost:8082/realms/eshop
+            issuer-uri: http://172.17.0.1:8082/realms/eshop
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: feedback-service-swagger-ui
+      use-pkce-with-authorization-code-grant: true
+keycloak:
+  uri: http://localhost:8082
 eureka:
   client:
     service-url:
