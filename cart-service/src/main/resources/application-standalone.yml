@@ -19,14 +19,14 @@ spring:
         registration:
           keycloak:
             provider: keycloak
-            client-id: customer-service
+            client-id: cart-service
             client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
             authorization-grant-type: client_credentials
             scope:
               - openid
           discovery:
             provider: keycloak
-            client-id: customer-service
+            client-id: cart-service
             client-secret: lrdajFhHOhP9ubIZJ8Na3RlnIYFoAvzZ
             authorization-grant-type: client_credentials
             scope:
@@ -40,4 +40,7 @@ springdoc:
       client-id: cart-service-swagger-ui
       use-pkce-with-authorization-code-grant: true
 keycloak:
-  uri: http://172.17.0.1:8082
+  uri: http://localhost:8082
+eureka:
+  client:
+    enabled: false

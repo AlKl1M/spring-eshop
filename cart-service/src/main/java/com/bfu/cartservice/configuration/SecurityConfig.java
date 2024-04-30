@@ -13,14 +13,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize
+        return http
+                .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
-                .oauth2Client(Customizer.withDefaults());
-        return http.build();
+                .oauth2ResourceServer(oauth2RespurceServer -> oauth2RespurceServer
+                        .jwt(Customizer.withDefaults()))
+                .oauth2Client(Customizer.withDefaults())
+                .build();
     }
 }
