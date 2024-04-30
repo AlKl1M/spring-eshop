@@ -6,12 +6,11 @@ import com.bfu.feedbackservice.controller.payload.NewFavouriteProductPayload;
 import com.bfu.feedbackservice.entity.FavouriteProduct;
 import com.bfu.feedbackservice.exception.ProductNotFoundException;
 import com.bfu.feedbackservice.service.FavouriteProductsService;
+import com.bfu.feedbackservice.util.BindingChecker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -45,23 +44,15 @@ public class FavouriteProductsController {
     }
 
     @PostMapping
+    @BindingChecker
     public FavouriteProduct addProductToFavourites(
             @Valid @RequestBody NewFavouriteProductPayload payload,
-            BindingResult bindingResult,
-            Principal principal) throws BindException{
-        if (bindingResult.hasErrors()) {
-            if (bindingResult instanceof BindException exception) {
-                throw exception;
-            } else {
-                throw new BindException(bindingResult);
-            }
+            Principal principal) {
+        if (client.isProductExist(payload.productId())) {
+            String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
+            return favouriteProductsService.addProductToFavourites(payload.productId(), userId);
         } else {
-            if (client.isProductExist(payload.productId())) {
-                String userId = ((JwtAuthenticationToken) principal).getToken().getSubject();
-                return favouriteProductsService.addProductToFavourites(payload.productId(), userId);
-            } else {
-                throw new ProductNotFoundException("Product does not exist");
-            }
+            throw new ProductNotFoundException("Product does not exist");
         }
     }
 
