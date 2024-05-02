@@ -1,0 +1,47 @@
+server:
+  port: 8086
+  forward-headers-strategy: framework
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: catalogue-service-route
+          uri: lb://catalogue-service
+          predicates:
+            - Host=**.catalogue.api.bfu.com.172.17.0.1.nip.io**
+        - id: cart-service-route
+          uri: lb://cart-service
+          predicates:
+            - Host=**.cart.api.bfu.com.172.17.0.1.nip.io**
+        - id: feedback-service-route
+          uri: lb://feedback-service
+          predicates:
+            - Host=**.feedback.api.bfu.com.172.17.0.1.nip.io**
+        - id: order-service-route
+          uri: lb://order-service
+          predicates:
+            - Host=**.order.api.bfu.com.172.17.0.1.nip.io**
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://172.17.0.1:8082/realms/eshop
+        registration:
+          discovery:
+            provider: keycloak
+            client-id: api-gateway
+            client-secret: aOwBUK7tKcRU4ne0GsMsawoYmkuOhTY5
+            authorization-grant-type: client_credentials
+            scope:
+              - discovery
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+    lease-expiration-duration-in-seconds: 1
+    hostname: 172.17.0.1
+  client:
+    service-url:
+      defaultZone: http://172.17.0.1:8761/eureka/
+    registry-fetch-interval-seconds: 1
