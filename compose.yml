@@ -1,0 +1,52 @@
+name: eshop
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.7
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - './config/keycloak/import:/opt/keycloak/data/import'
+    ports:
+      - '8082:8080'
+    command: start-dev --import-realm
+  cart-db:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+  feedback-db:
+    image: mongo:7
+    ports:
+      - '27028:27028'
+  eureka-server:
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: eureka-server/build/libs/eureka-server-0.0.1-SNAPSHOT.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: cloud
+    ports:
+      - '8761:8761'
+  cart-service:
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: cart-service/build/libs/cart-service-0.0.1-SNAPSHOT.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  feedback-service:
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: feedback-service/build/libs/feedback-service-0.0.1-SNAPSHOT.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  api-gateway:
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: api-gateway/build/libs/api-gateway-0.0.1-SNAPSHOT.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: cloud
+    ports:
+      - '8087:8087'
