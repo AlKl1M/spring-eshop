@@ -17,7 +17,7 @@ services:
   feedback-db:
     image: mongo:7
     ports:
-      - '27028:27028'
+      - '27028:27017'
   eureka-server:
     build:
       dockerfile: Dockerfile
@@ -49,4 +49,4 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: cloud
     ports:
-      - '8087:8087'
+      - '8086:8086'
