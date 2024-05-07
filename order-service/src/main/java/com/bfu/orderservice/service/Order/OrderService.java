@@ -16,4 +16,6 @@ public interface OrderService {
     void changeStatus(ChangeStatusRequest changeStatusRequest);
 
     Order getOrderByOrderId(String orderId);
+
+    List<Order> getAllOrders(String status);
 }

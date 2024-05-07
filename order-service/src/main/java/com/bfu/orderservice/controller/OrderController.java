@@ -81,6 +81,18 @@ public class OrderController {
                             orderProductService.getOrderProducts(order.getOrderId())
                     );
     }
+    @GetMapping("/getAllOrders")
+    public List<OrderResponse> getAllOrders(
+            @RequestParam(required = false) String status
+    ){
+        log.info("Start to getting ALL orders");
+        return orderService.getAllOrders(status).stream()
+                .map(p-> OrderResponse.from(
+                        p,
+                        orderProductService.getOrderProducts(p.getOrderId())
+                        )
+                ).toList();
+    }
 
     @DeleteMapping("/delete-order")
     public ResponseEntity<?> deleteOrder(String orderId) {

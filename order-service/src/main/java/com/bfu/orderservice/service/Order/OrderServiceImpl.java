@@ -76,4 +76,18 @@ public class OrderServiceImpl implements OrderService {
         }
         throw OrderNotFoundException.ofOrder(orderId);
     }
+
+    @Override
+    public List<Order> getAllOrders(String status) {
+        if (status != null) {
+            if (!Arrays.stream(Status.values()).map(p -> p.name()).toList().contains(status)) {
+                throw StatusNotFoundException.of(status);
+            }
+            System.out.println(Status.valueOf(status));
+            return orderRepository.getOrdersByStatus(Status.valueOf(status));
+        }
+        else {
+            return orderRepository.findAll();
+        }
+    }
 }

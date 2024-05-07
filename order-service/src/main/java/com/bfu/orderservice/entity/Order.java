@@ -38,6 +38,7 @@ public class Order {
     private Timestamp date;
 
     @Column(name = "c_status")
+    @Enumerated(EnumType.STRING)
     private Status status;
 
 //    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
