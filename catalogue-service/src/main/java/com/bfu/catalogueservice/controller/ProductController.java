@@ -43,8 +43,8 @@ public class ProductController {
 
     @GetMapping("/simplified-product-info")
     public SimplifiedProductResponse getSimpleProductById(@RequestParam String productId){
-        List<String> photos = productPhotoController.getProductPhotos(productId);
-        return productService.getSimpleProductById(productId, photos);
+        String photo = productPhotoController.getPreviewPhoto(productId);
+        return productService.getSimpleProductById(productId, photo);
     }
     @GetMapping("/full-product-info")
     public FullProductResponse getFullProductById(@RequestParam String productId){
@@ -59,7 +59,7 @@ public class ProductController {
         return ResponseEntity.ok(
                 products.stream()
                         .map(p->SimplifiedProductResponse.from(p,
-                                productPhotoController.getProductPhotos(p.getProductId())))
+                                productPhotoController.getPreviewPhoto(p.getProductId())))
                         .toList()
         );
     }

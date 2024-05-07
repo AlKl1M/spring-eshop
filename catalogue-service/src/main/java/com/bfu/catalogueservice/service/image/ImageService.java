@@ -13,5 +13,5 @@ public interface ImageService {
 
     String getPathByPhotoId(String photoId);
 
-    void deletePhoto(DeleteProductPhotoRequest request) throws IOException;
+    void deletePhoto(String productId, String photoType, String photoId) throws IOException;
 }

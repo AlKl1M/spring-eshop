@@ -4,6 +4,7 @@ import com.bfu.catalogueservice.controller.payload.ProductPhoto.DeleteProductPho
 import com.bfu.catalogueservice.entity.ValuePhoto;
 import com.bfu.catalogueservice.exception.CanNotReadPhotoException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.util.FileUtil;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.springframework.core.io.Resource;
@@ -24,8 +25,8 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ImageServiceImpl implements ImageService{
-    private final ResourceLoader resourceLoader;
     private final String GLOBAL_PATH = Paths.get("").toAbsolutePath().toString();
 
     @Override
@@ -59,12 +60,14 @@ public class ImageServiceImpl implements ImageService{
     }
 
     @Override
-    public void deletePhoto(DeleteProductPhotoRequest request) throws IOException {
-        for (String photoId: request.photosId()) {
-            Resource res = resourceLoader.getResource(String.format("classpath:products-photo/%s/Catalogue/%s.jpg",
-                    request.productId(), photoId));
-            File file = res.getFile();
-            Files.delete(Path.of(file.getPath()));
-        }
+    public void deletePhoto(String productId, String photoType, String photoId) throws IOException {
+        log.info("Deleting from path");
+        String path = GLOBAL_PATH + String.format("/catalogue-service/src/main/resources/products-photo/%s/%s/%s.jpg",
+                productId,
+                photoType,
+                photoId
+        );
+        Path file = Paths.get(path);
+        Files.deleteIfExists(file);
     }
 }

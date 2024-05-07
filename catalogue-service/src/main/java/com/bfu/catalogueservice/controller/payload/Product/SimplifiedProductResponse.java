@@ -9,14 +9,14 @@ public record SimplifiedProductResponse(
         String productId,
         String name,
         BigDecimal price,
-        List<String> productPhotos
+        String preview
 ) {
-    public static SimplifiedProductResponse from(Product p, List<String> productPhotos) {
+    public static SimplifiedProductResponse from(Product p, String preview) {
         return new SimplifiedProductResponse(
                 p.getProductId(),
                 p.getName(),
                 p.getPrice(),
-                productPhotos
+                preview
         );
     }
 }

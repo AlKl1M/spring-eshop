@@ -13,4 +13,8 @@ public interface ProductPhotoService {
     List<String> getProductPhotos(String productId);
 
     void deleteProductPhoto(DeleteProductPhotoRequest request) throws IOException;
+
+    String getPreviewPhoto(String productId);
+
+    void deletePreviewProductPhoto(String productId) throws IOException;
 }

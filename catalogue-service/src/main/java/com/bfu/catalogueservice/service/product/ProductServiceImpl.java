@@ -5,32 +5,21 @@ import com.bfu.catalogueservice.controller.payload.ProductPhoto.CreateProductPho
 import com.bfu.catalogueservice.entity.Brand;
 import com.bfu.catalogueservice.entity.Category;
 import com.bfu.catalogueservice.entity.Product;
-import com.bfu.catalogueservice.entity.ProductPhoto;
 import com.bfu.catalogueservice.exception.BrandNotFoundException;
-import com.bfu.catalogueservice.exception.CanNotReadPhotoException;
 import com.bfu.catalogueservice.exception.CategoryNotFoundException;
 import com.bfu.catalogueservice.exception.ProductNotFoundException;
 import com.bfu.catalogueservice.repository.BrandRepository;
 import com.bfu.catalogueservice.repository.CategoryRepository;
-import com.bfu.catalogueservice.repository.ProductPhotoRepository;
 import com.bfu.catalogueservice.repository.ProductRepository;
 import com.bfu.catalogueservice.service.image.ImageService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.BooleanUtils.forEach;
 
 @Service
 @AllArgsConstructor
@@ -41,6 +30,7 @@ public class ProductServiceImpl implements ProductService{
     private final BrandRepository brandRepository;
     private final ImageService imageService;
     @Override
+    @Transactional
     public CreateProductPhotoResponse createProduct(CreateProductRequest productRequest) {
         log.info("Start creating product with name {}", productRequest.name());
         Optional<Brand> brand = brandRepository.findByBrandId(productRequest.brandId());
@@ -82,6 +72,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @Transactional
     public void updateProduct(UpdateProductRequest productRequest) {
         log.info("Start updating product with name {}", productRequest.newName());
         Optional<Brand> brand = brandRepository.findByBrandId(productRequest.newBrandId());
@@ -106,6 +97,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @Transactional
     public void deleteProduct(String productId) {
         log.info("Start deleting product with productId {}", productId);
         Optional<Product> optionalProduct = productRepository.findByProductId(productId);
@@ -119,11 +111,11 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public SimplifiedProductResponse getSimpleProductById(String productId, List<String> photos) {
+    public SimplifiedProductResponse getSimpleProductById(String productId, String photo) {
         log.info("Getting Simplified product with productId {}", productId);
         Optional<Product> optionalProduct = productRepository.findByProductId(productId);
         if (optionalProduct.isPresent()) {
-            return SimplifiedProductResponse.from(optionalProduct.get(), photos);
+            return SimplifiedProductResponse.from(optionalProduct.get(), photo);
         }
         log.error("Product not found with productId {}", productId);
         throw new ProductNotFoundException(productId);

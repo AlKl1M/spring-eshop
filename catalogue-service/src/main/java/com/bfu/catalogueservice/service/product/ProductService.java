@@ -16,7 +16,7 @@ public interface ProductService {
 
     void deleteProduct(String productId);
 
-    SimplifiedProductResponse getSimpleProductById(String productId, List<String> photos);
+    SimplifiedProductResponse getSimpleProductById(String productId, String photos);
 
     FullProductResponse getFullProductById(String productId, List<String> photos);
 

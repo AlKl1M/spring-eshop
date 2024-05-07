@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ProductPhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
     @Column(name = "c_photo_id")
     private String photoId;
@@ -25,7 +25,7 @@ public class ProductPhoto {
     private Product product;
 
     @Column(name = "c_is_preview")
-    private boolean isPreview;
+    private boolean preview;
 
     @Column(name = "c_url")
     private String url;

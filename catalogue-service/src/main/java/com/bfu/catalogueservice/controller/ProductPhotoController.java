@@ -45,10 +45,18 @@ public class ProductPhotoController {
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         IOUtils.copy(inputStream, response.getOutputStream());
     }
-    @DeleteMapping("/delete-product-photo")
-    public ResponseEntity<?> deleteProductPhoto(@RequestBody DeleteProductPhotoRequest request) throws IOException {
+    @DeleteMapping("/delete-catalogue-product-photo")
+    public ResponseEntity<?> deleteCatalogueProductPhotos(@RequestBody DeleteProductPhotoRequest request) throws IOException {
         productPhotoService.deleteProductPhoto(request);
         return ResponseEntity.noContent().build();
     }
+    @DeleteMapping("/delete-preview-product-photo")
+    public ResponseEntity<?> deletePreviewProductPhoto(@RequestParam String productId) throws IOException {
+        productPhotoService.deletePreviewProductPhoto(productId);
+        return ResponseEntity.noContent().build();
+    }
 
+    public String getPreviewPhoto(String productId) {
+        return productPhotoService.getPreviewPhoto(productId);
+    }
 }
