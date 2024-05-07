@@ -43,8 +43,8 @@ class CartControllerTest {
     void setUp() {
         this.mongoTemplate.insertAll(List.of(
                 new Cart(UUID.randomUUID(), "user", Arrays.asList(
-                        new Product("1", "Product 1", new BigDecimal("10.0"), 2),
-                        new Product("2", "Product 2", new BigDecimal("20.0"), 1)
+                        new Product("1", "Product 1", new BigDecimal("10.0"), "photo1", 2),
+                        new Product("2", "Product 2", new BigDecimal("20.0"), "photo2", 1)
                 ), new BigDecimal("30.0"))));
     }
 
@@ -69,13 +69,15 @@ class CartControllerTest {
                         "productId": "1",
                         "name": "Product 1",
                         "quantity": 2,
-                        "price": 10.0
+                        "price": 10.0,
+                        "preview": "photo1"
                         },
                         {
                         "productId": "2",
                         "name": "Product 2",
                         "quantity": 1,
-                        "price": 20.0
+                        "price": 20.0,
+                        "preview": "photo2"
                         }
                         ]}
                         """)
@@ -100,7 +102,9 @@ class CartControllerTest {
                         {
                         "productId": "b7f39ec3-c11c-4",
                          "name": "Addded",
-                         "price": 10.00}
+                         "price": 10.00,
+                         "preview": "photob7f39ec3-c11c-4"
+                         }
                         """).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         this.mockMvc.perform(requestBuilder)
@@ -130,7 +134,9 @@ class CartControllerTest {
                         {
                         "productId": "b7f39ec3-c11c-4",
                          "name": "Addded",
-                         "price": 10.00}
+                         "price": 10.00,
+                         "preview": "photob7f39ec3-c11c-4"
+                         }
                         """).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         this.mockMvc.perform(requestBuilder)
@@ -159,8 +165,10 @@ class CartControllerTest {
                 .willReturn(WireMock.ok("""
                         {
                         "productId": "b7f39ec3-c11c-4",
-                         "name": "Addded",
-                         "price": 10.00}
+                        "name": "Addded",
+                        "price": 10.00,
+                        "preview": "photob7f39ec3-c11c-4"
+                        }
                         """).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         this.mockMvc.perform(requestBuilder)
@@ -183,7 +191,8 @@ class CartControllerTest {
                         {
                         "productId": "b7f39ec3-c11c-4",
                          "name": "Addded",
-                         "price": 10.00}
+                         "price": 10.00,
+                         "preview": "photob7f39ec3-c11c-4"}
                         """).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         this.mockMvc.perform(requestBuilder)

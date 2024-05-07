@@ -6,6 +6,7 @@ public record SimplifiedProductResponse(
         String productId,
         String name,
         int quantity,
-        BigDecimal price
+        BigDecimal price,
+        String preview
 ) {
 }

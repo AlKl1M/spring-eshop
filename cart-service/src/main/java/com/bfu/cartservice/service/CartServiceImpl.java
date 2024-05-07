@@ -25,7 +25,7 @@ public class CartServiceImpl implements CartService{
         return cartRepository.findByUserId(userId)
                 .map(cart -> {
                     List<SimplifiedProductResponse> simplifiedProducts = cart.getProducts().stream()
-                            .map(product -> new SimplifiedProductResponse(product.getId(), product.getName(), product.getQuantity(), product.getPrice()))
+                            .map(product -> new SimplifiedProductResponse(product.getId(), product.getName(), product.getQuantity(), product.getPrice(), product.getPreview()))
                             .toList();
                     return new ArrayOfSimplifiedProduct(simplifiedProducts);
                 })

@@ -45,6 +45,7 @@ public class CartController {
                 .id(cartProductResponse.productId())
                 .name(cartProductResponse.name())
                 .price(cartProductResponse.price())
+                .preview(cartProductResponse.preview())
                 .quantity(payload.quantity()).build();
         cartService.addToCart(userId, product);
         return ResponseEntity.ok("Product added to cart");
