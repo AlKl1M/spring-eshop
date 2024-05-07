@@ -27,8 +27,8 @@ class CartServiceImplTest {
     @Test
     public void getCart_WithExistingCart_ReturnsExistingProducts() {
         Cart cart = new Cart(UUID.randomUUID(), "testUserId", Arrays.asList(
-                new Product("1", "Product 1", new BigDecimal("10.0"), 2),
-                new Product("2", "Product 2", new BigDecimal("20.0"), 1)
+                new Product("1", "Product 1", new BigDecimal("10.0"), "photo1", 2),
+                new Product("2", "Product 2", new BigDecimal("20.0"), "photo2", 1)
         ), new BigDecimal("30.0"));
 
         when(cartRepository.findByUserId("testUserId")).thenReturn(Optional.of(cart));
@@ -77,7 +77,7 @@ class CartServiceImplTest {
     @Test
     public void addToCart_WithValidPayload_ReturnsNewProductInCart() {
         String userId = "testUserId";
-        Product newProduct = new Product("1", "Test Product", BigDecimal.TEN, 1);
+        Product newProduct = new Product("1", "Test Product", BigDecimal.TEN, "photo", 1);
         Cart existingCart = new Cart(UUID.randomUUID(), userId, new ArrayList<>(), BigDecimal.ZERO);
 
         when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(existingCart));
@@ -118,8 +118,8 @@ class CartServiceImplTest {
     @Test
     public void addToCart_withExistingProduct_ReturnsNewProductQuantity() {
         String userId = "testUser";
-        Product existingProduct = new Product("1", "Existing Product", BigDecimal.TEN, 1);
-        Product newProduct = new Product("1", "Existing Product", BigDecimal.TEN, 2);
+        Product existingProduct = new Product("1", "Existing Product", BigDecimal.TEN, "photo", 1);
+        Product newProduct = new Product("1", "Existing Product", BigDecimal.TEN, "photo", 2);
         Cart cart = new Cart(UUID.randomUUID(), userId, new ArrayList<>(), BigDecimal.ZERO);
         cart.getProducts().add(existingProduct);
 
@@ -194,7 +194,7 @@ class CartServiceImplTest {
         String productId = "testProductId";
 
         Cart cart = new Cart(UUID.randomUUID(), userId, new ArrayList<>(), BigDecimal.ZERO);
-        Product product = new Product(productId, "Product 1", new BigDecimal("10.00"), 1);
+        Product product = new Product(productId, "Product 1", new BigDecimal("10.00"), "photo1", 1);
         cart.getProducts().add(product);
 
         when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(cart));
