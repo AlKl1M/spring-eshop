@@ -106,7 +106,7 @@ class ProductReviewsControllerTest {
                 .with(jwt().jwt(builder -> builder.claim("scope", "view_catalogue")));
 
         WireMock.stubFor(WireMock.get(WireMock.urlPathMatching("/api/catalogue/is-exists"))
-                .withQueryParam("productId", WireMock.equalTo("5"))
+                .withQueryParam("productId", WireMock.equalTo("20"))
                 .willReturn(WireMock.ok("""                   
                         true
                         """).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
