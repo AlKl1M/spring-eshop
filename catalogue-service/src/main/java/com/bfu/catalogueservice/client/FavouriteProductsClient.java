@@ -6,6 +6,6 @@ import org.springframework.http.ResponseEntity;
 import java.security.Principal;
 import java.util.List;
 
-public interface CatalogueServiceClient {
+public interface FavouriteProductsClient {
     ArrayOfProductsIdRequest getProductsIdByUserId();
 }
