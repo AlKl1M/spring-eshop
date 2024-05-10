@@ -19,7 +19,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8082/realms/eshop
+          issuer-uri: http://172.17.0.1:8082/realms/eshop
       client:
         registration:
           keycloak:
@@ -38,7 +38,7 @@ spring:
               - discovery
         provider:
           keycloak:
-            issuer-uri: http://localhost:8082/realms/eshop
+            issuer-uri: http://172.17.0.1:8082/realms/eshop
 
   flyway:
     schemas:
